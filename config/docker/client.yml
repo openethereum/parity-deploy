@@ -1,0 +1,17 @@
+   lient:
+       container_name: client
+       image: ethcore/parity:beta 
+       ports:
+       - 8080:8080
+       - 8180:8180
+       - 8545:8545
+       - 30303:30303
+       volumes:
+       - ./deployment/chain/spec.json:/parity/spec.json:ro
+       - ./deployment/chain/reserved_peers:/parity/reserved_peers:ro
+       - ./deployment/client/password:/parity/password:ro
+       - ./deployment/client/client.toml:/parity/client.toml:ro
+       - ./deployment/client/${NETWORK_NAME}:/parity/data/keys/${NETWORK_NAME}
+       - ./data/client:/parity/data
+       command: --chain /parity/spec.json --config /parity/client.toml -d /parity/data --ui-interface "0.0.0.0" --ui-no-validation ui 
+

@@ -1,0 +1,17 @@
+version: '2.0'
+services:
+   host1:
+       container_name: host1 
+       image: ethcore/parity:beta 
+       ports:
+       - 8180:8180
+       - 8545:8545
+       - 30303:30303
+       volumes:
+       - ./deployment/chain/spec.json:/parity/spec.json:ro
+       - ./deployment/chain/reserved_peers:/parity/reserved_peers:ro
+       - ./deployment/is_authority/password:/parity/password:ro
+       - ./deployment/is_authority/authority.toml:/parity/authority.toml:ro
+       - ./deployment/is_authority/${NETWORK_NAME}:/parity/data/keys/${NETWORK_NAME}
+       - ./data/is_authority:/parity/data
+       command: --chain /parity/spec.json --config /parity/authority.toml -d /parity/data --ui-interface "0.0.0.0" --ui-no-validation ui

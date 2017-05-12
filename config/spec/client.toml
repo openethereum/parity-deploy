@@ -1,0 +1,18 @@
+[parity]
+chain = "/parity/spec.json"
+
+[account]
+password = ["/parity/password"]
+
+[network]
+reserved_peers = "/parity/reserved_peers"
+
+
+[rpc]
+interface = "0.0.0.0"
+cors = "all"
+hosts = ["all"]
+apis = ["web3", "eth", "net", "parity", "traces", "rpc", "personal", "parity_accounts", "signer", "parity_set"]
+
+[ui]
+force = true

@@ -1,0 +1,66 @@
+[
+  {
+    "name"              : "host1",
+    "script"            : "app.js",
+    "log_date_format"   : "YYYY-MM-DD HH:mm Z",
+    "merge_logs"        : false,
+    "watch"             : true,
+    "max_restarts"      : 10,
+    "exec_interpreter"  : "node",
+    "exec_mode"         : "fork_mode",
+    "env":
+    {
+      "NODE_ENV"        : "production",
+      "RPC_HOST"        : "host1",
+      "RPC_PORT"        : "8545",
+      "LISTENING_PORT"  : "30303",
+      "INSTANCE_NAME"   : "host1",
+      "WS_SERVER"       : "ws://dashboard:3000",
+      "WS_SECRET"       : "OurDashSecret93%",
+      "VERBOSITY"       : 3
+    }
+  },
+  {
+    "name"              : "host2",
+    "script"            : "app.js",
+    "log_date_format"   : "YYYY-MM-DD HH:mm Z",
+    "merge_logs"        : false,
+    "watch"             : true,
+    "max_restarts"      : 10,
+    "exec_interpreter"  : "node",
+    "exec_mode"         : "fork_mode",
+    "env":
+    {
+      "NODE_ENV"        : "production",
+      "RPC_HOST"        : "host2",
+      "RPC_PORT"        : "8545",
+      "LISTENING_PORT"  : "30303",
+      "INSTANCE_NAME"   : "host2",
+      "WS_SERVER"       : "ws://dashboard:3000",
+      "WS_SECRET"       : "OurDashSecret93%",
+      "VERBOSITY"       : 3
+    }
+  },
+  {
+    "name"              : "host3",
+    "script"            : "app.js",
+    "log_date_format"   : "YYYY-MM-DD HH:mm Z",
+    "merge_logs"        : false,
+    "watch"             : true,
+    "max_restarts"      : 10,
+    "exec_interpreter"  : "node",
+    "exec_mode"         : "fork_mode",
+    "env":
+    {
+      "NODE_ENV"        : "production",
+      "RPC_HOST"        : "host3",
+      "RPC_PORT"        : "8545",
+      "LISTENING_PORT"  : "30303",
+      "INSTANCE_NAME"   : "host3",
+      "WS_SERVER"       : "ws://dashboard:3000",
+      "WS_SECRET"       : "OurDashSecret93%",
+      "VERBOSITY"       : 3
+    }
+  } 
+
+]
