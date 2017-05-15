@@ -17,6 +17,5 @@ hosts = ["all"]
 apis = ["web3", "eth", "net", "parity", "traces", "rpc", "personal", "parity_accounts", "signer", "parity_set"]
 
 [mining]
-reseal_on_txs = "none"
 reseal_min_period = 0 
 engine_signer = "ENGINE_SIGNER"
