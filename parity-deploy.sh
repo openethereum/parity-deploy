@@ -30,7 +30,7 @@ fi
 
 genpw() {
 
-tr -cd '[:alnum:]' < /dev/urandom | fold -w12 | head -n1
+openssl rand -base64 12
 
 }
 
