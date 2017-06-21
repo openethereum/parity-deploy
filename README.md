@@ -1,4 +1,4 @@
-# Party Deploy 
+# Parity Deploy 
 Pairty deployment script generator. 
 
 # Requirements

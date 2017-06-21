@@ -2,7 +2,7 @@ version: '2.0'
 services:
    host1:
        container_name: host1 
-       image: ethcore/parity:beta 
+       image: parity/parity:beta 
        ports:
        - 8180:8180
        - 8545:8545
