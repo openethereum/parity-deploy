@@ -1,5 +1,6 @@
 #!/bin/bash
 # Copyright 2017 Parity Technologies (UK) Ltd.
+set -x
 
 DOCKER_INCLUDE="include/docker-compose.yml"
 
@@ -15,8 +16,7 @@ REQUIRED: --name Chain_Name  --engine instantseal / aura / tendermint --nodes nu
 
 check_packages() {
 
-if [ `uname -v | grep -i ubuntu | wc -l` -gt 0 ] ; then
-
+if [ $(grep -i debian /etc/*-release | wc -l) -gt 0 ] ; then
    if [ ! -f /usr/bin/docker ] ; then 
       sudo apt-get -y install docker.io python-pip 
    fi
@@ -130,14 +130,14 @@ display_name() {
 create_node_config_poa() {
 
   ENGINE_SIGNER=`cat deployment/$1/address.txt`
-  cat config/spec/authority_round.toml | sed -e "s/ENGINE_SIGNER/0x$ENGINE_SIGNER/g" > deployment/$1/authority.toml
+  cat config/spec/authority_round.toml | sed -e "s/ENGINE_SIGNER/$ENGINE_SIGNER/g" > deployment/$1/authority.toml
  
 }
 
 create_node_config_instantseal() { 
  
   ENGINE_SIGNER=`cat deployment/$1/address.txt`
-  cat config/spec/instant_seal.toml | sed -e "s/ENGINE_SIGNER/0x$ENGINE_SIGNER/g" > deployment/$1/authority.toml
+  cat config/spec/instant_seal.toml | sed -e "s/ENGINE_SIGNER/$ENGINE_SIGNER/g" > deployment/$1/authority.toml
 
  } 
 
