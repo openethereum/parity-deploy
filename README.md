@@ -1,9 +1,15 @@
 # Parity Deploy 
-Pairty deployment script generator. 
+The parity deploy script is used to generate parity deployment configurations. These can range from a single instance development node to a proof of authority network with an arbitrary amount of authority nodes.  
 
 # Requirements
 
-To use this script you will need two dependencies, docker and docker-compose. On Ubuntu systems these will automatically be installed if not already present on the system.
+There are multiple dependencies for this script to work. Most modern operating systems should have the base of these already installed. On Ubuntu systems these will automatically be installed if not already present on the system.
+
+Requires:
+1. openssl (which supports secp256k1 curves)
+2. python pip
+3. docker
+4. docker-compose
 
 # Using the tool
 
@@ -20,6 +26,10 @@ A three node proof of authority chain with one client acessable via 127.0.0.1:81
 ```
 ./parity-deploy.sh --name testchain --engine authorityround --nodes 3
 ```
+
+The output of this tool are two main items:
+1. A docker-compose.yml file which can be used with docker-compose to bring up and down the host(s). 
+2. A deployments directory which will contain the keys, spec files and everything else required to configure the chain.
 
 # Launch the parity chain
 
@@ -42,9 +52,9 @@ Once you are logged into the web interface if you go to Add Accounts, then selec
 
 You now have an account with lots of ether to send around. 
 
-# Adding extra containers
+# Adding custom containers
 
-You can also include extra nodes (e.g. ethstats monitoring) by including the docker-compose configuration in include/docker-compose.yml. To add Ethstats monitoring you would need to include this in the file:
+You can also include custom containers (e.g. ethstats monitoring) by including the docker-compose configuration in include/docker-compose.yml. To add Ethstats monitoring you would need to include this in the file:
 ```
   monitor:
     image: buythewhale/ethstats_monitor
@@ -58,4 +68,3 @@ You can also include extra nodes (e.g. ethstats monitoring) by including the doc
       - 3001:3000
 ```
 
- 
