@@ -44,7 +44,7 @@ fi
 genpw > deployment/$1/password
 ./config/utils/keygen.sh deployment/$1
 sed -i "s/CHAIN_NAME/$CHAIN_NAME/g" config/spec/example.spec
-./parity account new --chain config/spec/example.spec --password deployment/$1/password --keys-path deployment/$1/ > deployment/$1/address.txt
+parity account new --chain config/spec/example.spec --password deployment/$1/password --keys-path deployment/$1/ > deployment/$1/address.txt
 sed -i "s/$CHAIN_NAME/CHAIN_NAME/g" config/spec/example.spec
 echo "NETWORK_NAME=$CHAIN_NAME" > .env 
 
@@ -231,16 +231,6 @@ display_accounts() {
  
 }
 
-
-# Get a copy of the parity binary
-
-if [ ! -f parity ] ; then
-        wget http://d1h4xl4cr1h0mo.cloudfront.net/beta/x86_64-unknown-linux-gnu/parity
-        chmod +x parity
-fi
-
-
-
 while [ "$1" != "" ]; do
     case $1 in
         -n | --name )           shift
@@ -252,6 +242,9 @@ while [ "$1" != "" ]; do
         -n | --nodes )    	shift
 				CHAIN_NODES=$1
                                 ;;
+	-r | --release)		shift
+				PARITY_RELEASE=$1
+				;;
         -h | --help )           help 
                                 exit
                                 ;;
@@ -260,6 +253,22 @@ while [ "$1" != "" ]; do
     esac
     shift
 done
+
+
+# Get a copy of the parity binary
+
+if [ ! -f /usr/bin/parity ] ; then
+
+        if [ "$PARITY_RELEASE" == "" ] ; then
+                echo "NO custom parity build set, downloading beta"
+                bash <(curl https://get.parity.io -Lk)
+        else
+                echo "Custom parity build set: $PARITY_RELEASE"
+                curl -o parity-download.sh https://get.parity.io -Lk
+                bash parity-download.sh -r $PARITY_RELEASE
+        fi
+fi
+
 
 mkdir -p deployment/chain
 check_packages
