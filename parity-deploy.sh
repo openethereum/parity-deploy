@@ -289,9 +289,9 @@ if [ "$CHAIN_ENGINE" == "aura" ] ; then
 	   create_node_params $x
 	   create_reserved_peers_poa $x
  	   create_node_config_poa $x
-           build_docker_config_poa
-   	   build_docker_client
      done
+     build_docker_config_poa
+     build_docker_client
   fi	
 fi
 
@@ -304,9 +304,9 @@ if [ "$CHAIN_ENGINE" == "tendermint" ] ; then
 	   create_node_params $x
 	   create_reserved_peers_poa $x
  	   create_node_config_poa $x
-           build_docker_config_poa
-   	   build_docker_client
      done
+     build_docker_config_poa
+     build_docker_client
   fi	
 fi
 
