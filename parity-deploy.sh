@@ -1,6 +1,5 @@
 #!/bin/bash
 # Copyright 2017 Parity Technologies (UK) Ltd.
-set -x
 
 DOCKER_INCLUDE="include/docker-compose.yml"
 
