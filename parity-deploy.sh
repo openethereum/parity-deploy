@@ -238,12 +238,12 @@ while [ "$1" != "" ]; do
         -e | --engine )         shift
                                 CHAIN_ENGINE=$1
                                 ;;
-        -n | --nodes )    	shift
-				CHAIN_NODES=$1
+        -n | --nodes )    	    shift
+				                CHAIN_NODES=$1
                                 ;;
-	-r | --release)		shift
-				PARITY_RELEASE=$1
-				;;
+	    -r | --release)		    shift
+                                PARITY_RELEASE=$1
+                                ;;
         -h | --help )           help 
                                 exit
                                 ;;
@@ -254,9 +254,9 @@ while [ "$1" != "" ]; do
 done
 
 
-# Get a copy of the parity binary
+# Get a copy of the parity binary, overwriting if release is set
 
-if [ ! -f /usr/bin/parity ] ; then
+if [ ! -f /usr/bin/parity ] || [ ! "$PARITY_RELEASE" == "" ] ; then
 
         if [ "$PARITY_RELEASE" == "" ] ; then
                 echo "NO custom parity build set, downloading beta"
