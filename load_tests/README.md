@@ -1,4 +1,6 @@
-  Jmeter Load tests
+  ## Jmeter Load tests
+  
+  [Download Jmeter](https://jmeter.apache.org/download_jmeter.cgi)
   
   personal_sendTransaction_1500.jmx is set up to use 150 concurrent clients with 10 loops to hit the personal_sendTransaction method.
   
