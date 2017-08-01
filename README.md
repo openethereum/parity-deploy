@@ -15,15 +15,17 @@ Requires:
 
 There are currently three main options which can be used with the parity-deploy tool. They are:
 
-1. ```-n / --name``` This option allows you to set the name of the chain in use.
+Required:
 
-
-2. ``` -e / --engine``` This option allows you to set the conensus engine of the chain. Currently three methods are supported:
+```--engine``` This option allows you to set the conensus engine of the chain. Currently three methods are supported:
 * instantseal - Instant sealing of blocks for development mode. Expected to be run on a single node.
 * aura - Authority Round consensus engine, where all the authorities take a turn being the block created, based on unix/linux epoch, so the time need to be syncronized between hosts.
 * tendermint - Tendermint is another consensus engine that can be used with parity, however not as well tested as Authority Round.  
+Optional:
 
-3. ```-n / --nodes``` The amount of nodes that will be used with an aura or tendermint network. By default one client is also created.
+```--name``` This option allows you to set the name of the chain in use. Default chain name is parity.
+
+```--nodes``` The amount of nodes that will be used with an aura or tendermint network. By default one non-authority node is also created. Default value is 2 nodes.
 
 # Using the tool
 

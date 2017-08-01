@@ -1,5 +1,4 @@
 {
-
 	"name": "CHAIN_NAME",
     	"engine": {
         "authorityRound": {
@@ -12,7 +11,6 @@
             }
         }
     },
-
     "params": {
         "maximumExtraDataSize": "0x20",
         "minGasLimit": "0x1388",
