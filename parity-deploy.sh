@@ -156,7 +156,7 @@ display_engine() {
 	for x in ` seq 1 $CHAIN_NODES ` ; do
            VALIDATOR=`cat deployment/$x/address.txt`
 	   RESERVED_PEERS="$RESERVED_PEERS $VALIDATOR"
-	   VALIDATORS="$VALIDATORS \"0x$VALIDATOR\","
+	   VALIDATORS="$VALIDATORS \"$VALIDATOR\","
 	done
         # Remove trailing , from validator list
         VALIDATORS=`echo $VALIDATORS | sed 's/\(.*\),.*/\1/'`
@@ -166,7 +166,7 @@ display_engine() {
 	for x in ` seq 1 $CHAIN_NODES ` ; do
            VALIDATOR=`cat deployment/$x/address.txt`
 	   RESERVED_PEERS="$RESERVED_PEERS $VALIDATOR"
-	   VALIDATORS="$VALIDATORS \"0x$VALIDATOR\","
+	   VALIDATORS="$VALIDATORS \"$VALIDATOR\","
 	done
         # Remove trailing , from validator list
         VALIDATORS=`echo $VALIDATORS | sed 's/\(.*\),.*/\1/'`
