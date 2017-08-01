@@ -1,6 +1,7 @@
 #!/bin/bash
 # Copyright 2017 Parity Technologies (UK) Ltd.
-
+CHAIN_NAME="parity"
+CHAIN_NODES="2"
 DOCKER_INCLUDE="include/docker-compose.yml"
 
 
@@ -8,7 +9,12 @@ help()  {
 
 echo "parity-deploy.sh OPTIONS
 Usage:
-REQUIRED: --name Chain_Name  --engine instantseal / aura / tendermint --nodes number_of_nodes (if using aura / tendermint)
+REQUIRED:
+	--engine instantseal / aura / tendermint
+
+OPTIONAL:
+	--name name_of_chain. Default: parity
+	--nodes number_of_nodes (if using aura / tendermint) Default: 2
 "
 
 }
@@ -81,7 +87,7 @@ build_spec() {
 
 build_docker_config_poa() { 
 
- echo "version: '2.0'" >> docker-compose.yml
+ echo "version: '2.0'" > docker-compose.yml
  echo "services:" >> docker-compose.yml
 
  for x in ` seq 1 $CHAIN_NODES ` ; do
@@ -241,7 +247,7 @@ while [ "$1" != "" ]; do
         -n | --nodes )    	    shift
 				                CHAIN_NODES=$1
                                 ;;
-	    -r | --release)		    shift
+	-r | --release)		    shift
                                 PARITY_RELEASE=$1
                                 ;;
         -h | --help )           help 
@@ -252,6 +258,11 @@ while [ "$1" != "" ]; do
     esac
     shift
 done
+
+if [ -z $CHAIN_NAME ]; then
+    echo "no chain name given"
+fi
+
 
 
 # Get a copy of the parity binary, overwriting if release is set
