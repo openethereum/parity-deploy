@@ -10,7 +10,7 @@ help()  {
 echo "parity-deploy.sh OPTIONS
 Usage:
 REQUIRED:
-	--engine instantseal / aura / tendermint
+	--chain instantseal / aura / tendermint / validatorset
 
 OPTIONAL:
 	--name name_of_chain. Default: parity
@@ -162,6 +162,16 @@ display_engine() {
         VALIDATORS=`echo $VALIDATORS | sed 's/\(.*\),.*/\1/'`
 	cat config/spec/engine/aura | sed -e "s/0x0000000000000000000000000000000000000000/$VALIDATORS/g"
 	;;
+      validatorset)
+	for x in ` seq 1 $CHAIN_NODES ` ; do
+	   VALIDATOR=`cat deployment/$x/address.txt`
+	   VALIDATORS="$VALIDATORS \"$VALIDATOR\","
+	done
+	VALIDATORS=`echo $VALIDATORS | sed 's/\(.*\),.*/\1/'`
+	VALIDATOR0=$(echo $VALIDATORS | awk {'print $1'} | sed 's/\(.*\),.*/\1/')
+	VALIDATOR1=$(echo $VALIDATORS | awk {'print $2'})
+	cat config/spec/engine/validatorset | sed -e "s/0x0000000000000000000000000000000000000000/$VALIDATOR0/g" | sed -e "s/0x0000000000000000000000000000000000000001/$VALIDATOR1/g"
+       ;;
       tendermint)
 	for x in ` seq 1 $CHAIN_NODES ` ; do
            VALIDATOR=`cat deployment/$x/address.txt`
@@ -185,7 +195,7 @@ display_params() {
       instantseal)
 	cat config/spec/params/instantseal
 	;;
-      aura)
+      aura|validatorset)
 	cat config/spec/params/aura
 	;;
       tendermint)
@@ -204,7 +214,7 @@ display_genesis() {
       instantseal)
 	cat config/spec/genesis/instantseal
 	;;
-      aura)
+      aura|validatorset)
 	cat config/spec/genesis/aura
 	;;
       tendermint)
@@ -224,7 +234,7 @@ display_accounts() {
       instantseal)
 	cat config/spec/accounts/instantseal
 	;;
-      aura)
+      aura|validatorset)
 	cat config/spec/accounts/aura
 	;;
       tendermint)
@@ -241,7 +251,7 @@ while [ "$1" != "" ]; do
         -n | --name )           shift
                                 CHAIN_NAME=$1
                                 ;;
-        -e | --engine )         shift
+        -c | --chain )         shift
                                 CHAIN_ENGINE=$1
                                 ;;
         -n | --nodes )    	    shift
@@ -298,13 +308,26 @@ if [ "$CHAIN_ENGINE" == "aura" ] ; then
            echo "Creating param files for node $x"
 	   create_node_params $x
 	   create_reserved_peers_poa $x
- 	   create_node_config_poa $x
+	   create_node_config_poa $x
      done
      build_docker_config_poa
      build_docker_client
-  fi	
+  fi
 fi
 
+if [ "$CHAIN_ENGINE" == "validatorset" ] ; then
+  echo "using authority round"
+  if [ $CHAIN_NODES ] ; then
+     for x in ` seq $CHAIN_NODES ` ; do
+           echo "Creating param files for node $x"
+	   create_node_params $x
+	   create_reserved_peers_poa $x
+	   create_node_config_poa $x
+     done
+     build_docker_config_poa
+     build_docker_client
+  fi
+fi
 
 if [ "$CHAIN_ENGINE" == "tendermint" ] ; then 
   echo "using authority round"

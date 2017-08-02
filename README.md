@@ -17,10 +17,11 @@ There are currently three main options which can be used with the parity-deploy 
 
 Required:
 
-```--engine``` This option allows you to set the conensus engine of the chain. Currently three methods are supported:
+```--chain``` This option allows you to set the conensus engine of the chain. Currently four methods are supported:
 * instantseal - Instant sealing of blocks for development mode. Expected to be run on a single node.
 * aura - Authority Round consensus engine, where all the authorities take a turn being the block created, based on unix/linux epoch, so the time need to be syncronized between hosts.
 * tendermint - Tendermint is another consensus engine that can be used with parity, however not as well tested as Authority Round.  
+* validatorset - Validtor Set is used to transition a chain from one validator to another at a certain block.
 Optional:
 
 ```--name``` This option allows you to set the name of the chain in use. Default chain name is parity.
@@ -79,6 +80,7 @@ All of the chains are templated from the config directory. Inside the config dir
  * config/spec/engine/aura - This file contains the engine information for the aura chain.
  * config/spec/engine/instantseal - This file contains the engine information for the instantseal chain.
  * config/spec/engine/tendermint - This file contains the engine information for the tendermint chain.
+ * config/spec/engine/validatorset - This file contains the engine information for the validator set example chain.
 
 
 4. config/spec/genesis - This directory contains genesis information for each chain.
