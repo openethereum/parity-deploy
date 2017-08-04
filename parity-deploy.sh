@@ -10,11 +10,14 @@ help()  {
 echo "parity-deploy.sh OPTIONS
 Usage:
 REQUIRED:
-	--chain instantseal / aura / tendermint / validatorset
+	--chain dev / aura / tendermint / validatorset / kovan / foundation / input.json
 
 OPTIONAL:
 	--name name_of_chain. Default: parity
 	--nodes number_of_nodes (if using aura / tendermint) Default: 2
+
+NOTE:
+    Custom spec files can be inserted by specifiying the path to the json file. 
 "
 
 }
@@ -149,7 +152,7 @@ create_node_config_instantseal() {
 display_engine() {
 
  case $CHAIN_ENGINE in
-      instantseal)
+      dev)
 	cat config/spec/engine/instantseal
 	;;
       aura)
@@ -192,7 +195,7 @@ display_params() {
 
  case $CHAIN_ENGINE in
 
-      instantseal)
+      dev)
 	cat config/spec/params/instantseal
 	;;
       aura|validatorset)
@@ -231,7 +234,7 @@ display_accounts() {
 
  case $CHAIN_ENGINE in
 
-      instantseal)
+      dev)
 	cat config/spec/accounts/instantseal
 	;;
       aura|validatorset)
@@ -269,8 +272,9 @@ while [ "$1" != "" ]; do
     shift
 done
 
-if [ -z $CHAIN_NAME ]; then
-    echo "no chain name given"
+if [ -z $CHAIN_ENGINE ]; then
+    echo "No chain argument, exiting..."
+    exit 1
 fi
 
 
@@ -293,15 +297,14 @@ fi
 mkdir -p deployment/chain
 check_packages
 
-if [ "$CHAIN_ENGINE" == "instantseal" ] ; then 
+if [ "$CHAIN_ENGINE" == "dev" ] ; then
    echo "using instantseal"
    create_node_params is_authority
-   create_reserved_peers_instantseal is_authority 
-   create_node_config_instantseal is_authority 
+   create_reserved_peers_instantseal is_authority
+   create_node_config_instantseal is_authority
    build_docker_config_instantseal
-fi
 
-if [ "$CHAIN_ENGINE" == "aura" ] ; then 
+elif [ "$CHAIN_ENGINE" == "aura" ] ; then
   echo "using authority round"
   if [ $CHAIN_NODES ] ; then
      for x in ` seq $CHAIN_NODES ` ; do
@@ -313,9 +316,10 @@ if [ "$CHAIN_ENGINE" == "aura" ] ; then
      build_docker_config_poa
      build_docker_client
   fi
-fi
 
-if [ "$CHAIN_ENGINE" == "validatorset" ] ; then
+  build_spec > deployment/chain/spec.json
+
+elif [ "$CHAIN_ENGINE" == "validatorset" ] ; then
   echo "using authority round"
   if [ $CHAIN_NODES ] ; then
      for x in ` seq $CHAIN_NODES ` ; do
@@ -327,9 +331,10 @@ if [ "$CHAIN_ENGINE" == "validatorset" ] ; then
      build_docker_config_poa
      build_docker_client
   fi
-fi
 
-if [ "$CHAIN_ENGINE" == "tendermint" ] ; then 
+  build_spec > deployment/chain/spec.json
+
+elif [ "$CHAIN_ENGINE" == "tendermint" ] ; then 
   echo "using authority round"
   if [ $CHAIN_NODES ] ; then
      for x in ` seq $CHAIN_NODES ` ; do
@@ -341,9 +346,37 @@ if [ "$CHAIN_ENGINE" == "tendermint" ] ; then
      build_docker_config_poa
      build_docker_client
   fi	
+
+  build_spec > deployment/chain/spec.json
+
+elif [ "$CHAIN_ENGINE" == "kovan" ]  ; then
+
+   cp config/spec/kovan.json deployment/chain/spec.json
+
+elif [ "$CHAIN_ENGINE" == "foundation" ] ; then
+
+   cp config/spec/foundation.json deployment/chain/spec.json
+
+else
+     if [ -f $CHAIN_ENGINE ] ; then
+	echo "Custom chain selected: $CHAIN_ENGINE"
+	for x in ` seq $CHAIN_NODES ` ; do
+		create_node_params $x
+		create_reserved_peers_poa $x
+		create_node_config_poa $x
+	done
+
+	build_docker_config_poa
+	build_docker_client
+
+	mkdir -p deployment/chain
+	cp $CHAIN_ENGINE deployment/chain/spec.json
+
+else
+	echo "Could not find spec file: $CHAIN_ENGINE"
+	fi
 fi
 
-build_spec > deployment/chain/spec.json
 
 
 
