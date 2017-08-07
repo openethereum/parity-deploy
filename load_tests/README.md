@@ -24,3 +24,12 @@ parity --config dev --unlock 0x00a329c0648769a73afac7f9381e08fb43dbea72 --passwo
 ```
 parity --config dev --jsonrpc-apis personal
 ```
+
+## Spock test benchmark
+
+ [Spock Framework](http://spockframework.org/spock/docs/1.1/index.html)
+ 
+ is an eye friendly BDD style test framework based on a Groovy DSL. This means you need to have Java installed. The build script is a gradle build and so can be started with the wrapper shell script ./gradlew in the directory containg the build.gradle file.
+ 
+ 
+
