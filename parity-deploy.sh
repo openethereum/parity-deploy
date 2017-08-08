@@ -15,6 +15,7 @@ REQUIRED:
 OPTIONAL:
 	--name name_of_chain. Default: parity
 	--nodes number_of_nodes (if using aura / tendermint) Default: 2
+	--ethstats - Enable ethstats monitoring of authority nodes. Default: Off
 
 NOTE:
     Custom spec files can be inserted by specifiying the path to the json file. 
@@ -100,6 +101,14 @@ build_docker_config_poa() {
  cat $DOCKER_INCLUDE >> docker-compose.yml
  
 }
+
+build_docker_config_ethstats() {
+
+ if [ "$ETHSTATS" == "1" ] ; then
+    cat include/ethstats.yml >> docker-compose.yml
+ fi
+}
+
 
 build_docker_config_instantseal() {
 
@@ -198,8 +207,11 @@ display_params() {
       dev)
 	cat config/spec/params/instantseal
 	;;
-      aura|validatorset)
+      aura)
 	cat config/spec/params/aura
+	;;
+      validatorset)
+	cat config/spec/params/validatorset
 	;;
       tendermint)
 	cat config/spec/params/tendermint
@@ -263,6 +275,9 @@ while [ "$1" != "" ]; do
 	-r | --release)		    shift
                                 PARITY_RELEASE=$1
                                 ;;
+	-e | --ethstats)	shift
+				ETHSTATS=1
+				;;
         -h | --help )           help 
                                 exit
                                 ;;
@@ -318,6 +333,7 @@ elif [ "$CHAIN_ENGINE" == "aura" ] ; then
   fi
 
   build_spec > deployment/chain/spec.json
+  build_docker_config_ethstats
 
 elif [ "$CHAIN_ENGINE" == "validatorset" ] ; then
   echo "using authority round"
@@ -333,6 +349,7 @@ elif [ "$CHAIN_ENGINE" == "validatorset" ] ; then
   fi
 
   build_spec > deployment/chain/spec.json
+  build_docker_config_ethstats
 
 elif [ "$CHAIN_ENGINE" == "tendermint" ] ; then 
   echo "using authority round"
@@ -348,6 +365,7 @@ elif [ "$CHAIN_ENGINE" == "tendermint" ] ; then
   fi	
 
   build_spec > deployment/chain/spec.json
+  build_docker_config_ethstats
 
 elif [ "$CHAIN_ENGINE" == "kovan" ]  ; then
 
