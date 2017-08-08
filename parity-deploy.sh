@@ -10,7 +10,7 @@ help()  {
 echo "parity-deploy.sh OPTIONS
 Usage:
 REQUIRED:
-	--chain dev / aura / tendermint / validatorset / kovan / foundation / input.json
+	--chain dev / aura / tendermint / validatorset / input.json
 
 OPTIONAL:
 	--name name_of_chain. Default: parity

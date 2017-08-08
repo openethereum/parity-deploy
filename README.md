@@ -22,14 +22,14 @@ Required:
 * aura - Authority Round consensus engine, where all the authorities take a turn being the block created, based on unix/linux epoch, so the time need to be syncronized between hosts.
 * tendermint - Tendermint is another consensus engine that can be used with parity, however not as well tested as Authority Round.  
 * validatorset - Validtor Set is used to transition a chain from one validator to another at a certain block.
-* kovan - Use the kovan test network.
-* foundation - Use the live foundation network.
 * input.json - Use a custom input chain spec file used on all of the nodes.
 Optional:
 
 ```--name``` This option allows you to set the name of the chain in use. Default chain name is parity.
 
 ```--nodes``` The amount of nodes that will be used with an aura or tendermint network. By default one non-authority node is also created. Default value is 2 nodes.
+
+```--ethstats``` This option will start an ethstats monitoring instance that can be connected to on http://localhost:3001 
 
 # Using the tool
 
