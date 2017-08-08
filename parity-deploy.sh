@@ -367,14 +367,6 @@ elif [ "$CHAIN_ENGINE" == "tendermint" ] ; then
   build_spec > deployment/chain/spec.json
   build_docker_config_ethstats
 
-elif [ "$CHAIN_ENGINE" == "kovan" ]  ; then
-
-   cp config/spec/kovan.json deployment/chain/spec.json
-
-elif [ "$CHAIN_ENGINE" == "foundation" ] ; then
-
-   cp config/spec/foundation.json deployment/chain/spec.json
-
 else
      if [ -f $CHAIN_ENGINE ] ; then
 	echo "Custom chain selected: $CHAIN_ENGINE"
