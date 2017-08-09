@@ -26,7 +26,7 @@ parity --config dev --jsonrpc-apis personal
 ```
 
 ## [Gradle](https://gradle.org/) build system
-[Gradle](https://gradle.org/) is used to run Spock tests. Run gradlew in the load_tests directory to run the load tests
+[Gradle](https://gradle.org/) is used to run Spock tests. Run ```./gradlew test``` in the load_tests directory to run the load tests
 
 ## [Spock](http://spockframework.org/spock/docs/1.1/index.html) test benchmark
 
