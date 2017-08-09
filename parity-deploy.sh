@@ -10,11 +10,15 @@ help()  {
 echo "parity-deploy.sh OPTIONS
 Usage:
 REQUIRED:
-	--engine instantseal / aura / tendermint
+	--chain dev / aura / tendermint / validatorset / input.json
 
 OPTIONAL:
 	--name name_of_chain. Default: parity
 	--nodes number_of_nodes (if using aura / tendermint) Default: 2
+	--ethstats - Enable ethstats monitoring of authority nodes. Default: Off
+
+NOTE:
+    Custom spec files can be inserted by specifiying the path to the json file. 
 "
 
 }
@@ -98,6 +102,14 @@ build_docker_config_poa() {
  
 }
 
+build_docker_config_ethstats() {
+
+ if [ "$ETHSTATS" == "1" ] ; then
+    cat include/ethstats.yml >> docker-compose.yml
+ fi
+}
+
+
 build_docker_config_instantseal() {
 
   cat config/docker/instantseal.yml > docker-compose.yml
@@ -149,24 +161,34 @@ create_node_config_instantseal() {
 display_engine() {
 
  case $CHAIN_ENGINE in
-      instantseal)
+      dev)
 	cat config/spec/engine/instantseal
 	;;
       aura)
 	for x in ` seq 1 $CHAIN_NODES ` ; do
            VALIDATOR=`cat deployment/$x/address.txt`
 	   RESERVED_PEERS="$RESERVED_PEERS $VALIDATOR"
-	   VALIDATORS="$VALIDATORS \"0x$VALIDATOR\","
+	   VALIDATORS="$VALIDATORS \"$VALIDATOR\","
 	done
         # Remove trailing , from validator list
         VALIDATORS=`echo $VALIDATORS | sed 's/\(.*\),.*/\1/'`
 	cat config/spec/engine/aura | sed -e "s/0x0000000000000000000000000000000000000000/$VALIDATORS/g"
 	;;
+      validatorset)
+	for x in ` seq 1 $CHAIN_NODES ` ; do
+	   VALIDATOR=`cat deployment/$x/address.txt`
+	   VALIDATORS="$VALIDATORS \"$VALIDATOR\","
+	done
+	VALIDATORS=`echo $VALIDATORS | sed 's/\(.*\),.*/\1/'`
+	VALIDATOR0=$(echo $VALIDATORS | awk {'print $1'} | sed 's/\(.*\),.*/\1/')
+	VALIDATOR1=$(echo $VALIDATORS | awk {'print $2'})
+	cat config/spec/engine/validatorset | sed -e "s/0x0000000000000000000000000000000000000000/$VALIDATOR0/g" | sed -e "s/0x0000000000000000000000000000000000000001/$VALIDATOR1/g"
+       ;;
       tendermint)
 	for x in ` seq 1 $CHAIN_NODES ` ; do
            VALIDATOR=`cat deployment/$x/address.txt`
 	   RESERVED_PEERS="$RESERVED_PEERS $VALIDATOR"
-	   VALIDATORS="$VALIDATORS \"0x$VALIDATOR\","
+	   VALIDATORS="$VALIDATORS \"$VALIDATOR\","
 	done
         # Remove trailing , from validator list
         VALIDATORS=`echo $VALIDATORS | sed 's/\(.*\),.*/\1/'`
@@ -182,11 +204,14 @@ display_params() {
 
  case $CHAIN_ENGINE in
 
-      instantseal)
+      dev)
 	cat config/spec/params/instantseal
 	;;
       aura)
 	cat config/spec/params/aura
+	;;
+      validatorset)
+	cat config/spec/params/validatorset
 	;;
       tendermint)
 	cat config/spec/params/tendermint
@@ -204,7 +229,7 @@ display_genesis() {
       instantseal)
 	cat config/spec/genesis/instantseal
 	;;
-      aura)
+      aura|validatorset)
 	cat config/spec/genesis/aura
 	;;
       tendermint)
@@ -221,10 +246,10 @@ display_accounts() {
 
  case $CHAIN_ENGINE in
 
-      instantseal)
+      dev)
 	cat config/spec/accounts/instantseal
 	;;
-      aura)
+      aura|validatorset)
 	cat config/spec/accounts/aura
 	;;
       tendermint)
@@ -241,7 +266,7 @@ while [ "$1" != "" ]; do
         -n | --name )           shift
                                 CHAIN_NAME=$1
                                 ;;
-        -e | --engine )         shift
+        -c | --chain )         shift
                                 CHAIN_ENGINE=$1
                                 ;;
         -n | --nodes )    	    shift
@@ -250,6 +275,9 @@ while [ "$1" != "" ]; do
 	-r | --release)		    shift
                                 PARITY_RELEASE=$1
                                 ;;
+	-e | --ethstats)	shift
+				ETHSTATS=1
+				;;
         -h | --help )           help 
                                 exit
                                 ;;
@@ -259,8 +287,9 @@ while [ "$1" != "" ]; do
     shift
 done
 
-if [ -z $CHAIN_NAME ]; then
-    echo "no chain name given"
+if [ -z $CHAIN_ENGINE ]; then
+    echo "No chain argument, exiting..."
+    exit 1
 fi
 
 
@@ -283,15 +312,46 @@ fi
 mkdir -p deployment/chain
 check_packages
 
-if [ "$CHAIN_ENGINE" == "instantseal" ] ; then 
+if [ "$CHAIN_ENGINE" == "dev" ] ; then
    echo "using instantseal"
    create_node_params is_authority
-   create_reserved_peers_instantseal is_authority 
-   create_node_config_instantseal is_authority 
+   create_reserved_peers_instantseal is_authority
+   create_node_config_instantseal is_authority
    build_docker_config_instantseal
-fi
 
-if [ "$CHAIN_ENGINE" == "aura" ] ; then 
+elif [ "$CHAIN_ENGINE" == "aura" ] ; then
+  echo "using authority round"
+  if [ $CHAIN_NODES ] ; then
+     for x in ` seq $CHAIN_NODES ` ; do
+           echo "Creating param files for node $x"
+	   create_node_params $x
+	   create_reserved_peers_poa $x
+	   create_node_config_poa $x
+     done
+     build_docker_config_poa
+     build_docker_client
+  fi
+
+  build_spec > deployment/chain/spec.json
+  build_docker_config_ethstats
+
+elif [ "$CHAIN_ENGINE" == "validatorset" ] ; then
+  echo "using authority round"
+  if [ $CHAIN_NODES ] ; then
+     for x in ` seq $CHAIN_NODES ` ; do
+           echo "Creating param files for node $x"
+	   create_node_params $x
+	   create_reserved_peers_poa $x
+	   create_node_config_poa $x
+     done
+     build_docker_config_poa
+     build_docker_client
+  fi
+
+  build_spec > deployment/chain/spec.json
+  build_docker_config_ethstats
+
+elif [ "$CHAIN_ENGINE" == "tendermint" ] ; then 
   echo "using authority round"
   if [ $CHAIN_NODES ] ; then
      for x in ` seq $CHAIN_NODES ` ; do
@@ -303,24 +363,30 @@ if [ "$CHAIN_ENGINE" == "aura" ] ; then
      build_docker_config_poa
      build_docker_client
   fi	
+
+  build_spec > deployment/chain/spec.json
+  build_docker_config_ethstats
+
+else
+     if [ -f $CHAIN_ENGINE ] ; then
+	echo "Custom chain selected: $CHAIN_ENGINE"
+	for x in ` seq $CHAIN_NODES ` ; do
+		create_node_params $x
+		create_reserved_peers_poa $x
+		create_node_config_poa $x
+	done
+
+	build_docker_config_poa
+	build_docker_client
+
+	mkdir -p deployment/chain
+	cp $CHAIN_ENGINE deployment/chain/spec.json
+
+else
+	echo "Could not find spec file: $CHAIN_ENGINE"
+	fi
 fi
 
-
-if [ "$CHAIN_ENGINE" == "tendermint" ] ; then 
-  echo "using authority round"
-  if [ $CHAIN_NODES ] ; then
-     for x in ` seq $CHAIN_NODES ` ; do
-           echo "Creating param files for node $x"
-	   create_node_params $x
-	   create_reserved_peers_poa $x
- 	   create_node_config_poa $x
-     done
-     build_docker_config_poa
-     build_docker_client
-  fi	
-fi
-
-build_spec > deployment/chain/spec.json
 
 
 
