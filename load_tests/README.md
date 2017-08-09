@@ -28,9 +28,6 @@ parity --config dev --jsonrpc-apis personal
 ## [Gradle](https://gradle.org/) build system
 [Gradle](https://gradle.org/) is used to run Spock tests. Run gradlew in the load_tests directory to run the load tests
 
-[Spock Framework](http://spockframework.org/spock/docs/1.1/index.html) is an eye friendly BDD style test framework based on a Groovy DSL. This means you need to have Java installed. The build script is a gradle build and so can be started with the wrapper shell script ./gradlew in the directory containg the build.gradle file.
-Open load_tests/build/reports/tests/test/index.html to view the test results. The CLI output where benchmark times are recorded is under the Standard Output after clicking on a particular test 
- 
 ## [Spock](http://spockframework.org/spock/docs/1.1/index.html) test benchmark
 
 [Spock Framework](http://spockframework.org/spock/docs/1.1/index.html) is an eye friendly BDD style test framework based on a Groovy DSL. This means you need to have Java installed. The build script is a gradle build and so can be started with the wrapper shell script ./gradlew in the directory containg the build.gradle file.
