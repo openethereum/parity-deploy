@@ -8,6 +8,13 @@ In the second thread group a call is being made to `eth_getBlockByNumber` to che
 
 Resultant TPS is 1500 divided by time taken to finish the test
 
+## Run Parity
+
+It is assumed that you are running parity somewhere and the test is configured to point at it. It is configured for localhost by default.
+
+An easy way to run parity with docker would be for example 
+``` docker run -ti -p 8180:8180 -p 8545:8545 -p 30303:30303 parity/parity:nightly --config dev-insecure --ui-interface "0.0.0.0" --ui-no-validation ui --fast-unlock```
+
 ## Standard RPC corpora
 
 Files can be found [here](https://drive.google.com/drive/folders/0B8F2pjh7CQ9vREM5TGNEOC1fS1U?usp=sharing). Each line in those `.rpc` files contains a JSON object to be fed to a standard RPC interface (IPC or HTTP).
