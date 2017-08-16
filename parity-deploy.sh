@@ -10,7 +10,7 @@ help()  {
 echo "parity-deploy.sh OPTIONS
 Usage:
 REQUIRED:
-	--chain dev / aura / tendermint / validatorset / input.json
+	--config dev / aura / tendermint / validatorset / input.json
 
 OPTIONAL:
 	--name name_of_chain. Default: parity
@@ -263,16 +263,16 @@ display_accounts() {
 
 while [ "$1" != "" ]; do
     case $1 in
-        -n | --name )           shift
+         --name)           	shift
                                 CHAIN_NAME=$1
                                 ;;
-        -c | --chain )         shift
+        -c | --config )         shift
                                 CHAIN_ENGINE=$1
                                 ;;
-        -n | --nodes )    	    shift
-				                CHAIN_NODES=$1
+        -n | --nodes )    	shift
+		                CHAIN_NODES=$1
                                 ;;
-	-r | --release)		    shift
+	-r | --release)		shift
                                 PARITY_RELEASE=$1
                                 ;;
 	-e | --ethstats)	shift
@@ -320,7 +320,6 @@ if [ "$CHAIN_ENGINE" == "dev" ] ; then
    build_docker_config_instantseal
 
 elif [ "$CHAIN_ENGINE" == "aura" ] ; then
-  echo "using authority round"
   if [ $CHAIN_NODES ] ; then
      for x in ` seq $CHAIN_NODES ` ; do
            echo "Creating param files for node $x"
@@ -336,7 +335,6 @@ elif [ "$CHAIN_ENGINE" == "aura" ] ; then
   build_docker_config_ethstats
 
 elif [ "$CHAIN_ENGINE" == "validatorset" ] ; then
-  echo "using authority round"
   if [ $CHAIN_NODES ] ; then
      for x in ` seq $CHAIN_NODES ` ; do
            echo "Creating param files for node $x"
@@ -352,7 +350,6 @@ elif [ "$CHAIN_ENGINE" == "validatorset" ] ; then
   build_docker_config_ethstats
 
 elif [ "$CHAIN_ENGINE" == "tendermint" ] ; then 
-  echo "using authority round"
   if [ $CHAIN_NODES ] ; then
      for x in ` seq $CHAIN_NODES ` ; do
            echo "Creating param files for node $x"
