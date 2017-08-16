@@ -15,7 +15,7 @@ Files can be found [here](https://drive.google.com/drive/folders/0B8F2pjh7CQ9vRE
 ./submit_corpus.sh eth_sendRawTransaction_basic_10000.rpc
 ```
 
-Different options might be require to run different tests.
+Different options might be required to run different tests:
 - `eth_sendRawTransaction` does not require any special options
 ```
 parity --config dev
