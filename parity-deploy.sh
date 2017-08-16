@@ -164,7 +164,7 @@ display_engine() {
       dev)
 	cat config/spec/engine/instantseal
 	;;
-      aura)
+      aura|validatorset|tendermint)
 	for x in ` seq 1 $CHAIN_NODES ` ; do
            VALIDATOR=`cat deployment/$x/address.txt`
 	   RESERVED_PEERS="$RESERVED_PEERS $VALIDATOR"
@@ -172,27 +172,7 @@ display_engine() {
 	done
         # Remove trailing , from validator list
         VALIDATORS=`echo $VALIDATORS | sed 's/\(.*\),.*/\1/'`
-	cat config/spec/engine/aura | sed -e "s/0x0000000000000000000000000000000000000000/$VALIDATORS/g"
-	;;
-      validatorset)
-	for x in ` seq 1 $CHAIN_NODES ` ; do
-	   VALIDATOR=`cat deployment/$x/address.txt`
-	   VALIDATORS="$VALIDATORS \"$VALIDATOR\","
-	done
-	VALIDATORS=`echo $VALIDATORS | sed 's/\(.*\),.*/\1/'`
-	VALIDATOR0=$(echo $VALIDATORS | awk {'print $1'} | sed 's/\(.*\),.*/\1/')
-	VALIDATOR1=$(echo $VALIDATORS | awk {'print $2'})
-	cat config/spec/engine/validatorset | sed -e "s/0x0000000000000000000000000000000000000000/$VALIDATOR0/g" | sed -e "s/0x0000000000000000000000000000000000000001/$VALIDATOR1/g"
-       ;;
-      tendermint)
-	for x in ` seq 1 $CHAIN_NODES ` ; do
-           VALIDATOR=`cat deployment/$x/address.txt`
-	   RESERVED_PEERS="$RESERVED_PEERS $VALIDATOR"
-	   VALIDATORS="$VALIDATORS \"$VALIDATOR\","
-	done
-        # Remove trailing , from validator list
-        VALIDATORS=`echo $VALIDATORS | sed 's/\(.*\),.*/\1/'`
-	cat config/spec/engine/tendermint | sed -e "s/0x0000000000000000000000000000000000000000/$VALIDATORS/g"
+	cat config/spec/engine/$CHAIN_ENGINE | sed -e "s/0x0000000000000000000000000000000000000000/$VALIDATORS/g"
 	;;
 	*)
 	echo "Unknown engine: $CHAIN_ENGINE"
@@ -202,62 +182,23 @@ display_engine() {
 
 display_params() {
 
- case $CHAIN_ENGINE in
 
-      dev)
-	cat config/spec/params/instantseal
-	;;
-      aura)
-	cat config/spec/params/aura
-	;;
-      validatorset)
-	cat config/spec/params/validatorset
-	;;
-      tendermint)
-	cat config/spec/params/tendermint
-	;;
-	*)
-	echo "Unknown engine: $CHAIN_ENGINE"
- esac
- 
+  cat config/spec/params/$CHAIN_ENGINE
+
 }
 
 display_genesis() {
 
- case $CHAIN_ENGINE in
 
-      instantseal)
-	cat config/spec/genesis/instantseal
-	;;
-      aura|validatorset)
-	cat config/spec/genesis/aura
-	;;
-      tendermint)
-	cat config/spec/genesis/tendermint
-	;;
-	*)
-	echo "Unknown engine: $CHAIN_ENGINE"
- esac
- 
+  cat config/spec/genesis/$CHAIN_ENGINE
+
 }
 
 
 display_accounts() {
 
- case $CHAIN_ENGINE in
 
-      dev)
-	cat config/spec/accounts/instantseal
-	;;
-      aura|validatorset)
-	cat config/spec/accounts/aura
-	;;
-      tendermint)
-	cat config/spec/accounts/tendermint
-	;;
-	*)
-	echo "Unknown engine: $CHAIN_ENGINE"
- esac
+  cat config/spec/accounts/$CHAIN_ENGINE
  
 }
 
