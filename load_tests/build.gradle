@@ -37,22 +37,3 @@ dependencies {
     )
 }
 
-deployer {
-
-    kubernetes {
-        id = "kubernetes-zwitscher"
-        baseUrl = "https://your-address.com"
-        namespace = "test"
-        strategy = "UPDATE"
-        auth {
-            username = "admin"
-            password = "s3cr3t"
-        }
-        ssl {
-            trustAll = true
-        }
-        files = [file("kubernetes-zwitscher-config.json")]
-    }
-}
-
-
