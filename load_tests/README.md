@@ -10,8 +10,12 @@ Resultant TPS is 1500 divided by time taken to finish the test
 
 ## Standard RPC corpora
 
-Files can be found [here](https://drive.google.com/drive/folders/0B8F2pjh7CQ9vREM5TGNEOC1fS1U?usp=sharing). Each line in those `.rpc` files contains a JSON object to be fed to a standard RPC interface (IPC or HTTP).
+Files can be found [here](https://drive.google.com/drive/folders/0B8F2pjh7CQ9vREM5TGNEOC1fS1U?usp=sharing). Each line in those `.rpc` files contains a JSON object to be fed to a standard RPC interface (IPC or HTTP). One way is presented in the simple `submit_corpus.sh` script, which can be ran like so
+```
+./submit_corpus.sh eth_sendRawTransaction_basic_10000.rpc
+```
 
+Different options might be required to run different tests:
 - `eth_sendRawTransaction` does not require any special options
 ```
 parity --config dev
