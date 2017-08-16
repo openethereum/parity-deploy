@@ -58,7 +58,7 @@ class EthSendRawTransactionBasic10000SpockTest extends Specification {
         println "Transactions submitted in ${duration} ms with ${errors.size()} errors"
 
         errors.size() == 0
-//        results.size() == 100
+        results.size() == 100
 
         def (Period blockPeriodMillis, throughputTps) = getResults(results, blockTimes)
 
@@ -66,12 +66,11 @@ class EthSendRawTransactionBasic10000SpockTest extends Specification {
         throughputTps >= throughputEst
 
         where:
-        from | to   | clientThreads | submitTime | throughputEst
-        1000 | 1100 | 3             | 10         | 1
-//        100  | 200 | 3             | 10         | 1
-//        200  | 300 | 3             | 10         | 1
-//        300  | 400 | 3             | 10         | 1
-//        400  | 500 | 3             | 10         | 1
+        from | to  | clientThreads | submitTime | throughputEst
+        100  | 200 | 3             | 10         | 1
+        200  | 300 | 3             | 10         | 1
+        300  | 400 | 3             | 10         | 1
+        400  | 500 | 3             | 10         | 1
     }
 
     def "Submit 10k Transactions"() {
@@ -109,7 +108,6 @@ class EthSendRawTransactionBasic10000SpockTest extends Specification {
         println "Transactions submitted in ${duration} ms with ${errors.size()} errors"
 
         errors.size() == 0
-//        results.size() == 100
 
         def (Period blockPeriodMillis, throughputTps) = getResults(results, blockTimes)
 
