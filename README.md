@@ -44,7 +44,7 @@ A single node instant seal node, accessible via 127.0.0.1:8180:
 
 A three node proof of authority chain with one client acessable via 127.0.0.1:8180:
 ```
-./parity-deploy.sh --name testchain --config aura
+./parity-deploy.sh --config aura
 ```
 
 The output of this tool are two main items:

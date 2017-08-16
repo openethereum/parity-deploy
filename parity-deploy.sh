@@ -263,16 +263,16 @@ display_accounts() {
 
 while [ "$1" != "" ]; do
     case $1 in
-        -n | --name )           shift
+         --name)           	shift
                                 CHAIN_NAME=$1
                                 ;;
         -c | --config )         shift
                                 CHAIN_ENGINE=$1
                                 ;;
-        -nn | --nodes )    	    shift
-				                CHAIN_NODES=$1
+        -n | --nodes )    	shift
+		                CHAIN_NODES=$1
                                 ;;
-	-r | --release)		    shift
+	-r | --release)		shift
                                 PARITY_RELEASE=$1
                                 ;;
 	-e | --ethstats)	shift
