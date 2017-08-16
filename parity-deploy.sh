@@ -260,10 +260,9 @@ if [ "$CHAIN_ENGINE" == "dev" ] ; then
    create_node_config_instantseal is_authority
    build_docker_config_instantseal
 
-elif [ "$CHAIN_ENGINE" == "aura" ] ; then
+elif [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [ "$CHAIN_ENGINE" == "tendermint" ] || [ -f $CHAIN_ENGINE ] ; then
   if [ $CHAIN_NODES ] ; then
      for x in ` seq $CHAIN_NODES ` ; do
-           echo "Creating param files for node $x"
 	   create_node_params $x
 	   create_reserved_peers_poa $x
 	   create_node_config_poa $x
@@ -272,57 +271,15 @@ elif [ "$CHAIN_ENGINE" == "aura" ] ; then
      build_docker_client
   fi
 
-  build_spec > deployment/chain/spec.json
-  build_docker_config_ethstats
-
-elif [ "$CHAIN_ENGINE" == "validatorset" ] ; then
-  if [ $CHAIN_NODES ] ; then
-     for x in ` seq $CHAIN_NODES ` ; do
-           echo "Creating param files for node $x"
-	   create_node_params $x
-	   create_reserved_peers_poa $x
-	   create_node_config_poa $x
-     done
-     build_docker_config_poa
-     build_docker_client
+  if [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [ "$CHAIN_ENGINE" == "tendermint" ] ; then
+     build_spec > deployment/chain/spec.json
+     build_docker_config_ethstats
+  else
+     mkdir -p deployment/chain
+     cp $CHAIN_ENGINE deployment/chain/spec.json
   fi
-
-  build_spec > deployment/chain/spec.json
-  build_docker_config_ethstats
-
-elif [ "$CHAIN_ENGINE" == "tendermint" ] ; then 
-  if [ $CHAIN_NODES ] ; then
-     for x in ` seq $CHAIN_NODES ` ; do
-           echo "Creating param files for node $x"
-	   create_node_params $x
-	   create_reserved_peers_poa $x
- 	   create_node_config_poa $x
-     done
-     build_docker_config_poa
-     build_docker_client
-  fi	
-
-  build_spec > deployment/chain/spec.json
-  build_docker_config_ethstats
-
-else
-     if [ -f $CHAIN_ENGINE ] ; then
-	echo "Custom chain selected: $CHAIN_ENGINE"
-	for x in ` seq $CHAIN_NODES ` ; do
-		create_node_params $x
-		create_reserved_peers_poa $x
-		create_node_config_poa $x
-	done
-
-	build_docker_config_poa
-	build_docker_client
-
-	mkdir -p deployment/chain
-	cp $CHAIN_ENGINE deployment/chain/spec.json
-
 else
 	echo "Could not find spec file: $CHAIN_ENGINE"
-	fi
 fi
 
 
