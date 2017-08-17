@@ -18,6 +18,7 @@ dependencies {
         seleniumSupport = '2.52.0'
         spockCore = '1.1-groovy-2.4'
         webdriverHtmlunit = '0.9.7376'
+        grizzlyTyrus = '1.13.1'
     }
 
     compile (
@@ -27,13 +28,18 @@ dependencies {
     )
 
     testCompile(
+            'com.github.stephenc.high-scale-lib:high-scale-lib:1.1.4',
             'joda-time:joda-time:2.3',
             'org.codehaus.groovy.modules.http-builder:http-builder:0.7',
             "org.hamcrest:hamcrest-library:$hamcrest",
             'javax.servlet:javax.servlet-api:4.0.0-b07',
             'javax.ws.rs:javax.ws.rs-api:2.1-m09',
             'junit:junit:4.12',
+            "org.glassfish.tyrus:tyrus-server:$grizzlyTyrus",
+            "org.glassfish.tyrus:tyrus-client:$grizzlyTyrus",
+            "org.glassfish.tyrus:tyrus-container-grizzly:$grizzlyTyrus",
             "org.spockframework:spock-core:$spockCore"
     )
+
 }
 
