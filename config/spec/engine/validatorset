@@ -1,0 +1,20 @@
+       "engine": {
+        "authorityRound": {
+            "params": {
+                "gasLimitBoundDivisor": "0x400",
+                "stepDuration": "5",
+                "validators" : {
+                "multi": {
+                    "0": {
+                    	"list": [ 0x0000000000000000000000000000000000000000 ]
+                    },
+                    "5": {
+                         "list": [ 0x0000000000000000000000000000000000000001 ]
+                    }
+
+                    }
+                }
+            }
+        }
+     },
+

@@ -17,30 +17,34 @@ There are currently three main options which can be used with the parity-deploy 
 
 Required:
 
-```--engine``` This option allows you to set the conensus engine of the chain. Currently three methods are supported:
+```--config``` This option allows you to set the conensus engine of the chain. Multiple methods are supported:
 * instantseal - Instant sealing of blocks for development mode. Expected to be run on a single node.
 * aura - Authority Round consensus engine, where all the authorities take a turn being the block created, based on unix/linux epoch, so the time need to be syncronized between hosts.
 * tendermint - Tendermint is another consensus engine that can be used with parity, however not as well tested as Authority Round.  
+* validatorset - Validtor Set is used to transition a chain from one validator to another at a certain block.
+* input.json - Use a custom input chain spec file used on all of the nodes.
 Optional:
 
 ```--name``` This option allows you to set the name of the chain in use. Default chain name is parity.
 
 ```--nodes``` The amount of nodes that will be used with an aura or tendermint network. By default one non-authority node is also created. Default value is 2 nodes.
 
+```--ethstats``` This option will start an ethstats monitoring instance that can be connected to on http://localhost:3001 
+
 # Using the tool
 
-Currently this scripts supports two types of chains, either instant sealing for development and authority round for proof of authority with multiple validators.
+Currently this scripts supports two types of chains, either instant sealing for development and aura for proof of authority with multiple validators.
 
 Some examples of using the script are:
 
 A single node instant seal node, accessible via 127.0.0.1:8180:
 ```
-./parity-deploy.sh --name testchain --engine instantseal
+./parity-deploy.sh --config dev
 ```
 
 A three node proof of authority chain with one client acessable via 127.0.0.1:8180:
 ```
-./parity-deploy.sh --name testchain --engine authorityround --nodes 3
+./parity-deploy.sh --config aura
 ```
 
 The output of this tool are two main items:
@@ -79,6 +83,7 @@ All of the chains are templated from the config directory. Inside the config dir
  * config/spec/engine/aura - This file contains the engine information for the aura chain.
  * config/spec/engine/instantseal - This file contains the engine information for the instantseal chain.
  * config/spec/engine/tendermint - This file contains the engine information for the tendermint chain.
+ * config/spec/engine/validatorset - This file contains the engine information for the validator set example chain.
 
 
 4. config/spec/genesis - This directory contains genesis information for each chain.

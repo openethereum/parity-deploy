@@ -10,11 +10,15 @@ help()  {
 echo "parity-deploy.sh OPTIONS
 Usage:
 REQUIRED:
-	--engine instantseal / aura / tendermint
+	--config dev / aura / tendermint / validatorset / input.json
 
 OPTIONAL:
 	--name name_of_chain. Default: parity
 	--nodes number_of_nodes (if using aura / tendermint) Default: 2
+	--ethstats - Enable ethstats monitoring of authority nodes. Default: Off
+
+NOTE:
+    Custom spec files can be inserted by specifiying the path to the json file. 
 "
 
 }
@@ -98,6 +102,14 @@ build_docker_config_poa() {
  
 }
 
+build_docker_config_ethstats() {
+
+ if [ "$ETHSTATS" == "1" ] ; then
+    cat include/ethstats.yml >> docker-compose.yml
+ fi
+}
+
+
 build_docker_config_instantseal() {
 
   cat config/docker/instantseal.yml > docker-compose.yml
@@ -149,28 +161,18 @@ create_node_config_instantseal() {
 display_engine() {
 
  case $CHAIN_ENGINE in
-      instantseal)
+      dev)
 	cat config/spec/engine/instantseal
 	;;
-      aura)
+      aura|validatorset|tendermint)
 	for x in ` seq 1 $CHAIN_NODES ` ; do
            VALIDATOR=`cat deployment/$x/address.txt`
 	   RESERVED_PEERS="$RESERVED_PEERS $VALIDATOR"
-	   VALIDATORS="$VALIDATORS \"0x$VALIDATOR\","
+	   VALIDATORS="$VALIDATORS \"$VALIDATOR\","
 	done
         # Remove trailing , from validator list
         VALIDATORS=`echo $VALIDATORS | sed 's/\(.*\),.*/\1/'`
-	cat config/spec/engine/aura | sed -e "s/0x0000000000000000000000000000000000000000/$VALIDATORS/g"
-	;;
-      tendermint)
-	for x in ` seq 1 $CHAIN_NODES ` ; do
-           VALIDATOR=`cat deployment/$x/address.txt`
-	   RESERVED_PEERS="$RESERVED_PEERS $VALIDATOR"
-	   VALIDATORS="$VALIDATORS \"0x$VALIDATOR\","
-	done
-        # Remove trailing , from validator list
-        VALIDATORS=`echo $VALIDATORS | sed 's/\(.*\),.*/\1/'`
-	cat config/spec/engine/tendermint | sed -e "s/0x0000000000000000000000000000000000000000/$VALIDATORS/g"
+	cat config/spec/engine/$CHAIN_ENGINE | sed -e "s/0x0000000000000000000000000000000000000000/$VALIDATORS/g"
 	;;
 	*)
 	echo "Unknown engine: $CHAIN_ENGINE"
@@ -180,76 +182,43 @@ display_engine() {
 
 display_params() {
 
- case $CHAIN_ENGINE in
 
-      instantseal)
-	cat config/spec/params/instantseal
-	;;
-      aura)
-	cat config/spec/params/aura
-	;;
-      tendermint)
-	cat config/spec/params/tendermint
-	;;
-	*)
-	echo "Unknown engine: $CHAIN_ENGINE"
- esac
- 
+  cat config/spec/params/$CHAIN_ENGINE
+
 }
 
 display_genesis() {
 
- case $CHAIN_ENGINE in
 
-      instantseal)
-	cat config/spec/genesis/instantseal
-	;;
-      aura)
-	cat config/spec/genesis/aura
-	;;
-      tendermint)
-	cat config/spec/genesis/tendermint
-	;;
-	*)
-	echo "Unknown engine: $CHAIN_ENGINE"
- esac
- 
+  cat config/spec/genesis/$CHAIN_ENGINE
+
 }
 
 
 display_accounts() {
 
- case $CHAIN_ENGINE in
 
-      instantseal)
-	cat config/spec/accounts/instantseal
-	;;
-      aura)
-	cat config/spec/accounts/aura
-	;;
-      tendermint)
-	cat config/spec/accounts/tendermint
-	;;
-	*)
-	echo "Unknown engine: $CHAIN_ENGINE"
- esac
+  cat config/spec/accounts/$CHAIN_ENGINE
  
 }
 
 while [ "$1" != "" ]; do
     case $1 in
-        -n | --name )           shift
+         --name)           	shift
                                 CHAIN_NAME=$1
                                 ;;
-        -e | --engine )         shift
+        -c | --config )         shift
                                 CHAIN_ENGINE=$1
                                 ;;
-        -n | --nodes )    	    shift
-				                CHAIN_NODES=$1
+        -n | --nodes )    	shift
+		                CHAIN_NODES=$1
                                 ;;
-	-r | --release)		    shift
+	-r | --release)		shift
                                 PARITY_RELEASE=$1
                                 ;;
+	-e | --ethstats)	shift
+				ETHSTATS=1
+				;;
         -h | --help )           help 
                                 exit
                                 ;;
@@ -259,8 +228,9 @@ while [ "$1" != "" ]; do
     shift
 done
 
-if [ -z $CHAIN_NAME ]; then
-    echo "no chain name given"
+if [ -z $CHAIN_ENGINE ]; then
+    echo "No chain argument, exiting..."
+    exit 1
 fi
 
 
@@ -283,44 +253,35 @@ fi
 mkdir -p deployment/chain
 check_packages
 
-if [ "$CHAIN_ENGINE" == "instantseal" ] ; then 
+if [ "$CHAIN_ENGINE" == "dev" ] ; then
    echo "using instantseal"
    create_node_params is_authority
-   create_reserved_peers_instantseal is_authority 
-   create_node_config_instantseal is_authority 
+   create_reserved_peers_instantseal is_authority
+   create_node_config_instantseal is_authority
    build_docker_config_instantseal
-fi
 
-if [ "$CHAIN_ENGINE" == "aura" ] ; then 
-  echo "using authority round"
+elif [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [ "$CHAIN_ENGINE" == "tendermint" ] || [ -f $CHAIN_ENGINE ] ; then
   if [ $CHAIN_NODES ] ; then
      for x in ` seq $CHAIN_NODES ` ; do
-           echo "Creating param files for node $x"
 	   create_node_params $x
 	   create_reserved_peers_poa $x
- 	   create_node_config_poa $x
+	   create_node_config_poa $x
      done
      build_docker_config_poa
      build_docker_client
-  fi	
+  fi
+
+  if [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [ "$CHAIN_ENGINE" == "tendermint" ] ; then
+     build_spec > deployment/chain/spec.json
+     build_docker_config_ethstats
+  else
+     mkdir -p deployment/chain
+     cp $CHAIN_ENGINE deployment/chain/spec.json
+  fi
+else
+	echo "Could not find spec file: $CHAIN_ENGINE"
 fi
 
-
-if [ "$CHAIN_ENGINE" == "tendermint" ] ; then 
-  echo "using authority round"
-  if [ $CHAIN_NODES ] ; then
-     for x in ` seq $CHAIN_NODES ` ; do
-           echo "Creating param files for node $x"
-	   create_node_params $x
-	   create_reserved_peers_poa $x
- 	   create_node_config_poa $x
-     done
-     build_docker_config_poa
-     build_docker_client
-  fi	
-fi
-
-build_spec > deployment/chain/spec.json
 
 
 
