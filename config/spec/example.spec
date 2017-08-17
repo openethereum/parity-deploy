@@ -1,6 +1,6 @@
 {
-	"name": "CHAIN_NAME",
-    	"engine": {
+  "name": "CHAIN_NAME",
+      "engine": {
         "authorityRound": {
             "params": {
                 "gasLimitBoundDivisor": "0x400",
@@ -15,7 +15,7 @@
         "maximumExtraDataSize": "0x20",
         "minGasLimit": "0x1388",
         "gasLimitBoundDivisor": "0x400",
-        "networkID" : "0x2323"
+        "networkID" : "0x11"
     },
     "genesis": {
         "seal": {
