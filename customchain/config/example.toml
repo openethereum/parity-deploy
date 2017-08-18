@@ -1,0 +1,96 @@
+# Configuration for chain spec
+[spec]
+config = ''' 
+{
+
+	"name": "parity",
+    	"engine": {
+        "authorityRound": {
+            "params": {
+                "gasLimitBoundDivisor": "0x400",
+                "stepDuration": "5",
+                "validators" : {
+                    "list": [ "0x830ac6153fcd2123459ebec27e1376eb90f9d616" ]
+                }
+            }
+        }
+    },
+
+    "params": {
+        "maximumExtraDataSize": "0x20",
+        "minGasLimit": "0x1388",
+        "networkID" : "0x8888"
+    },
+    "genesis": {
+        "seal": {
+            "authorityRound": {
+                "step": "0x0",
+                "signature": "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+            }
+        },
+        "difficulty": "0x20000",
+        "gasLimit": "0x5B8D80"
+    },
+    "accounts": {
+        "0x0000000000000000000000000000000000000001": { "balance": "1", "builtin": { "name": "ecrecover", "pricing": { "linear": { "base": 3000, "word": 0 } } } },
+        "0x0000000000000000000000000000000000000002": { "balance": "1", "builtin": { "name": "sha256", "pricing": { "linear": { "base": 60, "word": 12 } } } },
+        "0x0000000000000000000000000000000000000003": { "balance": "1", "builtin": { "name": "ripemd160", "pricing": { "linear": { "base": 600, "word": 120 } } } },
+        "0x0000000000000000000000000000000000000004": { "balance": "1", "builtin": { "name": "identity", "pricing": { "linear": { "base": 15, "word": 3 } } } },
+	"0x00Ea169ce7e0992960D3BdE6F5D539C955316432": { "balance": "1606938044258990275541962092341162602522202993782792835301376" }  
+    }
+}
+'''
+
+# Add host entry and toml information for each container you want created
+[toml]
+
+# Container for example host 5 
+#
+host5 = ''' 
+
+[parity]
+chain = "/parity/chain.json"
+
+[account]
+unlock = ["0x830ac6153fcd2123459ebec27e1376eb90f9d616"]
+password = ["/parity/password"]
+
+
+[rpc]
+interface = "0.0.0.0"
+cors = "all"
+hosts = ["all"]
+apis = ["web3", "eth", "net", "parity", "traces", "rpc", "personal", "parity_accounts", "signer", "parity_set"]
+
+[mining]
+reseal_on_txs = "none"
+engine_signer = "0x830ac6153fcd2123459ebec27e1376eb90f9d616"
+force_sealing = true
+
+'''
+
+# Container for example host 311 
+#
+host311 = ''' 
+
+[parity]
+chain = "/parity/chain.json"
+
+[account]
+password = ["/parity/password"]
+
+'''
+
+# Container for example host 3178
+#
+host3178 = ''' 
+
+[parity]
+chain = "/parity/chain.json"
+
+[account]
+password = ["/parity/password"]
+
+'''
+
+
