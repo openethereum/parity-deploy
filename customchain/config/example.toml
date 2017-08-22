@@ -3,8 +3,8 @@
 config = ''' 
 {
 
-	"name": "parity",
-    	"engine": {
+  "name": "parity",
+     "engine": {
         "authorityRound": {
             "params": {
                 "gasLimitBoundDivisor": "0x400",
@@ -41,6 +41,12 @@ config = '''
 }
 '''
 
+default_config = '''
+[parity]
+chain = "/parity/chain.json"
+'''
+
+
 # Add host entry and toml information for each container you want created
 [toml]
 
@@ -71,26 +77,10 @@ force_sealing = true
 
 # Container for example host 311 
 #
-host311 = ''' 
-
-[parity]
-chain = "/parity/chain.json"
-
-[account]
-password = ["/parity/password"]
-
-'''
+host311 = "default"
 
 # Container for example host 3178
 #
-host3178 = ''' 
-
-[parity]
-chain = "/parity/chain.json"
-
-[account]
-password = ["/parity/password"]
-
-'''
+host3178 = "default"
 
 

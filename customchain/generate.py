@@ -30,7 +30,10 @@ def generate_toml_files(hosts):
     copyfile("/dev/null","deployment/reserved_peers")
     for host in hosts:
         f = open("deployment/" + host + ".toml","w")
-        f.write(mainconfig['toml'][host])
+        if mainconfig['toml'][host] == "default":
+            f.write(mainconfig['spec']['default_config'])
+        else:
+            f.write(mainconfig['toml'][host])
         f.close()
 
 def capture_enodes():
