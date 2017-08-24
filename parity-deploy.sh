@@ -20,7 +20,7 @@ OPTIONAL:
 	--nodes number_of_nodes (if using aura / tendermint) Default: 2
 	--ethstats - Enable ethstats monitoring of authority nodes. Default: Off
 	--expose - Expose a specific container on ports 8180 / 8545 / 30303. Default: Config specific
-  --chain-options - A quoted string of options to be used with parity, e.g. "--force-sealing --no-ui" Default: None
+        --chain-options - A quoted string of options to be used with parity, e.g. \"--force-sealing --no-ui\" Default: None
 
 NOTE:
     Custom spec files can be inserted by specifiying the path to the json file.
