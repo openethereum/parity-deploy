@@ -4,7 +4,6 @@ CHAIN_NAME="parity"
 CHAIN_NODES="1"
 CLIENT="0"
 DOCKER_INCLUDE="include/docker-compose.yml"
-set +
 
 help()  {
 
@@ -166,7 +165,7 @@ create_node_config_instantseal() {
 
 expose_container() {
 
-  sed -i "s@container_name: $1@&\n       - 8080:8080\n       - 8180:8180\n       - 8545:8545\n       - 30303:30303@g" docker-compose.yml
+  sed -i "s@container_name: $1@&\n       ports:\n       - 8080:8080\n       - 8180:8180\n       - 8545:8545\n       - 30303:30303@g" docker-compose.yml
 
 }
 
@@ -307,8 +306,6 @@ elif [ "$CHAIN_ENGINE" == "dev" ] ; then
    build_docker_config_instantseal
 
 elif [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [ "$CHAIN_ENGINE" == "tendermint" ] || [ -f "$CHAIN_ENGINE" ] ; then
-  echo "Building chain_engine config: $CHAIN_ENGINE"
-	exit
   if [ $CHAIN_NODES ] ; then
      for x in ` seq $CHAIN_NODES ` ; do
 	   create_node_params $x
