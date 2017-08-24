@@ -218,21 +218,21 @@ display_accounts() {
 
 while [ "$1" != "" ]; do
     case $1 in
-         --name)        shift
+        --name)         shift
                         CHAIN_NAME=$1
                         ;;
         -c | --config)  shift
                         CHAIN_ENGINE=$1
                         ;;
         -n | --nodes )  shift
-		                    CHAIN_NODES=$1
+                        CHAIN_NODES=$1
                         ;;
-        -r | --release)	shift
-                         PARITY_RELEASE=$1
-                         ;;
+        -r | --release) shift
+                        PARITY_RELEASE=$1
+                        ;;
         -e | --ethstats) shift
-				                ETHSTATS=1
-				                ;;
+                         ETHSTATS=1
+                         ;;
         --customchain)   shift
                         CUSTOM_CHAIN=$1
                         echo "Custom chain: $1"
