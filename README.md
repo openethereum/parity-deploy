@@ -23,8 +23,6 @@ Required:
 * tendermint - Tendermint is another consensus engine that can be used with parity, however not as well tested as Authority Round.  
 * validatorset - Validtor Set is used to transition a chain from one validator to another at a certain block.
 * input.json - Use a custom input chain spec file used on all of the nodes.
-OR
-```---chain``` This option allows you to use a chain built into parity, e.g. foundation, kovan, classic
 
 Optional:
 
@@ -36,7 +34,7 @@ Optional:
 
 ```--expose``` This option will expose ports 8080, 8180, 8545 and 30303 on the container name given as an argument.
 
-``--chain-options``` Pass a quoted string of options for the parity container, e.g. "--force-signing --no-ui"
+``--parity-options``` Pass a quoted string of options for the parity container, e.g. "--force-signing --no-ui"
 
 
 # Using the tool
