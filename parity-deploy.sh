@@ -4,6 +4,7 @@ CHAIN_NAME="parity"
 CHAIN_NODES="1"
 CLIENT="0"
 DOCKER_INCLUDE="include/docker-compose.yml"
+set +
 
 help()  {
 
@@ -19,6 +20,8 @@ OPTIONAL:
 	--nodes number_of_nodes (if using aura / tendermint) Default: 2
 	--ethstats - Enable ethstats monitoring of authority nodes. Default: Off
 	--expose - Expose a specific container on ports 8180 / 8545 / 30303. Default: Config specific
+  --chain-options - A quoted string of options to be used with parity, e.g. "--force-sealing --no-ui" Default: None
+
 NOTE:
     Custom spec files can be inserted by specifiying the path to the json file.
 "
@@ -223,6 +226,8 @@ display_accounts() {
 
 }
 
+ARGS="$@"
+
 while [ "$1" != "" ]; do
     case $1 in
          --name)           	    shift
@@ -249,6 +254,9 @@ while [ "$1" != "" ]; do
 				--chain)                shift
 				                        CHAIN_NETWORK=$1
 																;;
+        --chain-options)        shift
+                                CHAIN_OPTIONS=$1
+                                ;;
         -h | --help )           help
                                 exit
                                 ;;
@@ -284,7 +292,12 @@ mkdir -p deployment/chain
 check_packages
 
 if [ ! -z "$CHAIN_NETWORK" ]; then
-   cat config/docker/chain.yml | sed -e "s/CHAIN_NAME/$CHAIN_NETWORK/g" > docker-compose.yml
+  if [ ! -z "$CHAIN_OPTIONS" ]; then
+      cat config/docker/chain.yml | sed -e "s/CHAIN_NAME/$CHAIN_NETWORK/g" | sed -e "s@-d /parity/data@-d /parity/data $CHAIN_OPTIONS@g"  > docker-compose.yml
+
+  else
+      cat config/docker/chain.yml | sed -e "s/CHAIN_NAME/$CHAIN_NETWORK/g"  > docker-compose.yml
+  fi
 
 elif [ "$CHAIN_ENGINE" == "dev" ] ; then
    echo "using instantseal"
@@ -309,7 +322,6 @@ elif [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [
   if [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [ "$CHAIN_ENGINE" == "tendermint" ] ; then
      build_spec > deployment/chain/spec.json
      build_docker_config_ethstats
-
   else
      mkdir -p deployment/chain
      cp $CHAIN_ENGINE deployment/chain/spec.json
