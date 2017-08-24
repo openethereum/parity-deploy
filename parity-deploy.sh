@@ -5,13 +5,14 @@ CHAIN_NODES="1"
 CLIENT="0"
 DOCKER_INCLUDE="include/docker-compose.yml"
 
-
-help()  { 
+help()  {
 
 echo "parity-deploy.sh OPTIONS
 Usage:
 REQUIRED:
 	--config dev / aura / tendermint / validatorset / input.json
+	OR
+	--chain kovan / foundation / testnet  
 
 OPTIONAL:
 	--name name_of_chain. Default: parity
@@ -19,7 +20,7 @@ OPTIONAL:
 	--ethstats - Enable ethstats monitoring of authority nodes. Default: Off
 	--expose - Expose a specific container on ports 8180 / 8545 / 30303. Default: Config specific
 NOTE:
-    Custom spec files can be inserted by specifiying the path to the json file. 
+    Custom spec files can be inserted by specifiying the path to the json file.
 "
 
 }
@@ -27,11 +28,11 @@ NOTE:
 check_packages() {
 
 if [ $(grep -i debian /etc/*-release | wc -l) -gt 0 ] ; then
-   if [ ! -f /usr/bin/docker ] ; then 
-      sudo apt-get -y install docker.io python-pip 
+   if [ ! -f /usr/bin/docker ] ; then
+      sudo apt-get -y install docker.io python-pip
    fi
 
-   if [ ! -f /usr/local/bin/docker-compose ] ; then 
+   if [ ! -f /usr/local/bin/docker-compose ] ; then
       sudo pip install docker-compose
    fi
 fi
@@ -47,7 +48,7 @@ openssl rand -base64 12
 
 create_node_params() {
 
-if [ ! -d deployment/$1 ] ; then 
+if [ ! -d deployment/$1 ] ; then
    mkdir -p deployment/$1
 fi
 
@@ -56,7 +57,7 @@ genpw > deployment/$1/password
 sed -i "s/CHAIN_NAME/$CHAIN_NAME/g" config/spec/example.spec
 parity account new --chain config/spec/example.spec --password deployment/$1/password --keys-path deployment/$1/ > deployment/$1/address.txt
 sed -i "s/$CHAIN_NAME/CHAIN_NAME/g" config/spec/example.spec
-echo "NETWORK_NAME=$CHAIN_NAME" > .env 
+echo "NETWORK_NAME=$CHAIN_NAME" > .env
 
 
 
@@ -87,10 +88,10 @@ build_spec() {
  display_accounts
  display_footer
 
-} 
+}
 
 
-build_docker_config_poa() { 
+build_docker_config_poa() {
 
  echo "version: '2.0'" > docker-compose.yml
  echo "services:" >> docker-compose.yml
@@ -100,7 +101,7 @@ build_docker_config_poa() {
  done
 
  cat $DOCKER_INCLUDE >> docker-compose.yml
- 
+
 }
 
 build_docker_config_ethstats() {
@@ -118,18 +119,18 @@ build_docker_config_instantseal() {
 }
 
 
-build_docker_client() { 
+build_docker_client() {
 
   if [ "$CLIENT" == "1" ]; then
     create_node_params client
     cp config/spec/client.toml deployment/client/
     cat config/docker/client.yml >> docker-compose.yml
   fi
-} 
+}
 
 
 display_header() {
- 
+
   cat config/spec/chain_header
 
 }
@@ -150,15 +151,15 @@ create_node_config_poa() {
 
   ENGINE_SIGNER=`cat deployment/$1/address.txt`
   cat config/spec/authority_round.toml | sed -e "s/ENGINE_SIGNER/$ENGINE_SIGNER/g" > deployment/$1/authority.toml
- 
+
 }
 
 create_node_config_instantseal() {
- 
+
   ENGINE_SIGNER=`cat deployment/$1/address.txt`
   cat config/spec/instant_seal.toml | sed -e "s/ENGINE_SIGNER/$ENGINE_SIGNER/g" > deployment/$1/authority.toml
 
- } 
+ }
 
 expose_container() {
 
@@ -219,7 +220,7 @@ display_accounts() {
 
 
   cat config/spec/accounts/$CHAIN_ENGINE
- 
+
 }
 
 while [ "$1" != "" ]; do
@@ -245,16 +246,19 @@ while [ "$1" != "" ]; do
         --expose)               shift
                                 EXPOSE_CLIENT="$1"
                                 ;;
-        -h | --help )           help 
+				--chain)                shift
+				                        CHAIN_NETWORK=$1
+																;;
+        -h | --help )           help
                                 exit
                                 ;;
-        * )                    	help 
+        * )                    	help
                                 exit 1
     esac
     shift
 done
 
-if [ -z $CHAIN_ENGINE ]; then
+if [ "$CHAIN_ENGINE" == "" ] && [ "$CHAIN_NETWORK" == "" ]; then
     echo "No chain argument, exiting..."
     exit 1
 fi
@@ -279,14 +283,19 @@ fi
 mkdir -p deployment/chain
 check_packages
 
-if [ "$CHAIN_ENGINE" == "dev" ] ; then
+if [ ! -z "$CHAIN_NETWORK" ]; then
+   cat config/docker/chain.yml | sed -e "s/CHAIN_NAME/$CHAIN_NETWORK/g" > docker-compose.yml
+
+elif [ "$CHAIN_ENGINE" == "dev" ] ; then
    echo "using instantseal"
    create_node_params is_authority
    create_reserved_peers_instantseal is_authority
    create_node_config_instantseal is_authority
    build_docker_config_instantseal
 
-elif [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [ "$CHAIN_ENGINE" == "tendermint" ] || [ -f $CHAIN_ENGINE ] ; then
+elif [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [ "$CHAIN_ENGINE" == "tendermint" ] || [ -f "$CHAIN_ENGINE" ] ; then
+  echo "Building chain_engine config: $CHAIN_ENGINE"
+	exit
   if [ $CHAIN_NODES ] ; then
      for x in ` seq $CHAIN_NODES ` ; do
 	   create_node_params $x
@@ -300,14 +309,15 @@ elif [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [
   if [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [ "$CHAIN_ENGINE" == "tendermint" ] ; then
      build_spec > deployment/chain/spec.json
      build_docker_config_ethstats
+
   else
      mkdir -p deployment/chain
      cp $CHAIN_ENGINE deployment/chain/spec.json
   fi
+
+
 else
 	echo "Could not find spec file: $CHAIN_ENGINE"
 fi
 
 select_exposed_container
-
-
