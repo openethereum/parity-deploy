@@ -34,8 +34,6 @@ Optional:
 
 ```--expose``` This option will expose ports 8080, 8180, 8545 and 30303 on the container name given as an argument.
 
-``--parity-options``` Pass a quoted string of options for the parity container, e.g. "--force-signing --no-ui"
-
 
 # Using the tool
 

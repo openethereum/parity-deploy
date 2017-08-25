@@ -11,15 +11,12 @@ echo "parity-deploy.sh OPTIONS
 Usage:
 REQUIRED:
 	--config dev / aura / tendermint / validatorset / input.json
-	OR
-	--chain kovan / foundation / testnet  
 
 OPTIONAL:
 	--name name_of_chain. Default: parity
 	--nodes number_of_nodes (if using aura / tendermint) Default: 2
 	--ethstats - Enable ethstats monitoring of authority nodes. Default: Off
 	--expose - Expose a specific container on ports 8180 / 8545 / 30303. Default: Config specific
-        --parity-options - A quoted string of options to be used with parity, e.g. \"--force-sealing --no-ui\" Default: None
 
 NOTE:
     Custom spec files can be inserted by specifiying the path to the json file.
@@ -99,7 +96,7 @@ build_docker_config_poa() {
  echo "services:" >> docker-compose.yml
 
  for x in ` seq 1 $CHAIN_NODES ` ; do
-    cat config/docker/authority.yml | sed -e "s/NODE_NAME/$x/g" >> docker-compose.yml
+    cat config/docker/authority.yml | sed -e "s/NODE_NAME/$x/g" | sed -e "s@-d /parity/data@-d /parity/data $PARITY_OPTIONS@g" >> docker-compose.yml
  done
 
  cat $DOCKER_INCLUDE >> docker-compose.yml
@@ -116,7 +113,7 @@ build_docker_config_ethstats() {
 
 build_docker_config_instantseal() {
 
-  cat config/docker/instantseal.yml > docker-compose.yml
+  cat config/docker/instantseal.yml | sed -e "s@-d /parity/data@-d /parity/data $PARITY_OPTIONS@g" > docker-compose.yml
 
 }
 
@@ -253,14 +250,10 @@ while [ "$1" != "" ]; do
 				--chain)                shift
 				                        CHAIN_NETWORK=$1
 																;;
-        --parity-options)        shift
-                                PARITY_OPTIONS=$1
-                                ;;
         -h | --help )           help
                                 exit
                                 ;;
-        * )                    	help
-                                exit 1
+        *)                    	PARITY_OPTIONS="$PARITY_OPTIONS $1 "
     esac
     shift
 done
