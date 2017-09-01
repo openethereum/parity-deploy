@@ -1,7 +1,8 @@
 #!/bin/bash
 # Copyright 2017 Parity Technologies (UK) Ltd.
 CHAIN_NAME="parity"
-CHAIN_NODES="2"
+CHAIN_NODES="1"
+CLIENT="0"
 DOCKER_INCLUDE="include/docker-compose.yml"
 
 
@@ -17,7 +18,7 @@ OPTIONAL:
 	--nodes number_of_nodes (if using aura / tendermint) Default: 2
 	--ethstats - Enable ethstats monitoring of authority nodes. Default: Off
   --customchain - Build configuration using custom chain toml file. Default: Off
-
+	--expose - Expose a specific container on ports 8180 / 8545 / 30303. Default: Config specific
 NOTE:
     Custom spec files can be inserted by specifiying the path to the json file. 
 "
@@ -120,10 +121,11 @@ build_docker_config_instantseal() {
 
 build_docker_client() { 
 
-  create_node_params client 
-  cp config/spec/client.toml deployment/client/
-  cat config/docker/client.yml >> docker-compose.yml
-
+  if [ "$CLIENT" == "1" ]; then
+    create_node_params client
+    cp config/spec/client.toml deployment/client/
+    cat config/docker/client.yml >> docker-compose.yml
+  fi
 } 
 
 
@@ -165,12 +167,30 @@ create_node_config_poa() {
  
 }
 
-create_node_config_instantseal() { 
+create_node_config_instantseal() {
  
   ENGINE_SIGNER=`cat deployment/$1/address.txt`
   cat config/spec/instant_seal.toml | sed -e "s/ENGINE_SIGNER/$ENGINE_SIGNER/g" > deployment/$1/authority.toml
 
  } 
+
+expose_container() {
+
+  sed -i "s@container_name: $1@&\n       - 8080:8080\n       - 8180:8180\n       - 8545:8545\n       - 30303:30303@g" docker-compose.yml
+
+}
+
+select_exposed_container() {
+
+  if [ "$EXPOSE_CLIENT" != "" ] ; then
+    expose_container $EXPOSE_CLIENT
+  else
+    if [ "$CLIENT" == "0" ] ; then
+    expose_container host1
+    fi
+  fi
+
+}
 
 display_engine() {
 
@@ -233,10 +253,16 @@ while [ "$1" != "" ]; do
         -e | --ethstats) shift
                          ETHSTATS=1
                          ;;
-        --customchain)   shift
+        --customchain)  shift
                         CUSTOM_CHAIN=$1
                         echo "Custom chain: $1"
                         build_custom_chain
+                        ;;
+        --enable-client) shift
+                        CLIENT=1
+                        ;;
+        --expose)       shift
+                        EXPOSE_CLIENT="$1"
                         ;;
         -h | --help )   help
                         exit
@@ -301,6 +327,6 @@ else
 	echo "Could not find spec file: $CHAIN_ENGINE"
 fi
 
-
+select_exposed_container
 
 
