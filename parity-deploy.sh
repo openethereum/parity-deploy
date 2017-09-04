@@ -17,6 +17,7 @@ OPTIONAL:
 	--name name_of_chain. Default: parity
 	--nodes number_of_nodes (if using aura / tendermint) Default: 2
 	--ethstats - Enable ethstats monitoring of authority nodes. Default: Off
+  --customchain - Build configuration using custom chain toml file. Default: Off
 	--expose - Expose a specific container on ports 8180 / 8545 / 30303. Default: Config specific
 NOTE:
     Custom spec files can be inserted by specifiying the path to the json file. 
@@ -128,6 +129,19 @@ build_docker_client() {
 } 
 
 
+build_custom_chain() {
+
+
+  if [ "$CUSTOM_CHAIN" == "" ] ; then
+     echo "Must specify argument for custom chain option."
+     exit 1
+  fi
+
+  ./customchain/generate.py "$CUSTOM_CHAIN"
+
+  exit 0
+}
+
 display_header() {
  
   cat config/spec/chain_header
@@ -224,32 +238,37 @@ display_accounts() {
 
 while [ "$1" != "" ]; do
     case $1 in
-         --name)           	    shift
-                                CHAIN_NAME=$1
-                                ;;
-        -c | --config )         shift
-                                CHAIN_ENGINE=$1
-                                ;;
-        -n | --nodes )    	    shift
-		                            CHAIN_NODES=$1
-                                ;;
-	      -r | --release)		      shift
-                                PARITY_RELEASE=$1
-                                ;;
-	      -e | --ethstats)	      shift
-				                        ETHSTATS=1
-				                        ;;
-        --enable-client)        shift
-                                CLIENT=1
-                                ;;
-        --expose)               shift
-                                EXPOSE_CLIENT="$1"
-                                ;;
-        -h | --help )           help 
-                                exit
-                                ;;
-        * )                    	help 
-                                exit 1
+        --name)         shift
+                        CHAIN_NAME=$1
+                        ;;
+        -c | --config)  shift
+                        CHAIN_ENGINE=$1
+                        ;;
+        -n | --nodes )  shift
+                        CHAIN_NODES=$1
+                        ;;
+        -r | --release) shift
+                        PARITY_RELEASE=$1
+                        ;;
+        -e | --ethstats) shift
+                         ETHSTATS=1
+                         ;;
+        --customchain)  shift
+                        CUSTOM_CHAIN=$1
+                        echo "Custom chain: $1"
+                        build_custom_chain
+                        ;;
+        --enable-client) shift
+                        CLIENT=1
+                        ;;
+        --expose)       shift
+                        EXPOSE_CLIENT="$1"
+                        ;;
+        -h | --help )   help
+                        exit
+                        ;;
+        * )             help
+                        exit 1
     esac
     shift
 done
