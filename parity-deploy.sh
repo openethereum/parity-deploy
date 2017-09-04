@@ -16,6 +16,7 @@ OPTIONAL:
 	--name name_of_chain. Default: parity
 	--nodes number_of_nodes (if using aura / tendermint) Default: 2
 	--ethstats - Enable ethstats monitoring of authority nodes. Default: Off
+  --customchain - Build configuration using custom chain toml file. Default: Off
 	--expose - Expose a specific container on ports 8180 / 8545 / 30303. Default: Config specific
 
 NOTE:
@@ -127,6 +128,19 @@ build_docker_client() {
   fi
 }
 
+
+build_custom_chain() {
+
+
+  if [ "$CUSTOM_CHAIN" == "" ] ; then
+     echo "Must specify argument for custom chain option."
+     exit 1
+  fi
+
+  ./customchain/generate.py "$CUSTOM_CHAIN"
+
+  exit 0
+}
 
 display_header() {
 
