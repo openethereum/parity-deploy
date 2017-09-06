@@ -5,6 +5,7 @@
        - 8080:8080
        - 8180:8180
        - 8545:8545
+       - 8545:8546
        - 30303:30303
        volumes:
        - ./deployment/chain/spec.json:/parity/spec.json:ro
