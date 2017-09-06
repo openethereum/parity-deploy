@@ -176,7 +176,7 @@ create_node_config_instantseal() {
 
 expose_container() {
 
-  sed -i "s@container_name: $1@&\n       ports:\n       - 8080:8080\n       - 8180:8180\n       - 8545:8545\n       - 30303:30303@g" docker-compose.yml
+  sed -i "s@container_name: $1@&\n       ports:\n       - 8080:8080\n       - 8180:8180\n       - 8545:8545\n       - 8546:8546\n       - 30303:30303@g" docker-compose.yml
 
 }
 
