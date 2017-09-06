@@ -325,7 +325,6 @@ elif [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [
 
   if [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [ "$CHAIN_ENGINE" == "tendermint" ] ; then
      build_spec > deployment/chain/spec.json
-     build_docker_config_ethstats
   else
      mkdir -p deployment/chain
      cp $CHAIN_ENGINE deployment/chain/spec.json
@@ -336,4 +335,5 @@ else
 	echo "Could not find spec file: $CHAIN_ENGINE"
 fi
 
+build_docker_config_ethstats
 select_exposed_container
