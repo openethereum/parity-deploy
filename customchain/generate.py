@@ -61,7 +61,7 @@ if not os.path.exists("deployment/"):
 hosts = []  
 
 
-print("Generating configuration...")
+print("Generating custom configuration from toml input...")
 mainconfig = contoml.load(sys.argv[1])
 
 for host in mainconfig['toml'].items():

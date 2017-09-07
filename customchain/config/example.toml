@@ -41,6 +41,7 @@ config = '''
 }
 '''
 
+# Default toml file for hosts unless overridden.
 default_config = '''
 [parity]
 chain = "/parity/chain.json"

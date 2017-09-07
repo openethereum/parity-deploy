@@ -4,23 +4,22 @@ CHAIN_NAME="parity"
 CHAIN_NODES="1"
 CLIENT="0"
 DOCKER_INCLUDE="include/docker-compose.yml"
-
 help()  {
 
 echo "parity-deploy.sh OPTIONS
 Usage:
 REQUIRED:
-	--config dev / aura / tendermint / validatorset / input.json
+        --config dev / aura / tendermint / validatorset / input.json / custom_chain.toml
 
 OPTIONAL:
-	--name name_of_chain. Default: parity
-	--nodes number_of_nodes (if using aura / tendermint) Default: 2
-	--ethstats - Enable ethstats monitoring of authority nodes. Default: Off
-  --customchain - Build configuration using custom chain toml file. Default: Off
-	--expose - Expose a specific container on ports 8180 / 8545 / 30303. Default: Config specific
+        --name name_of_chain. Default: parity
+        --nodes number_of_nodes (if using aura / tendermint) Default: 2
+        --ethstats - Enable ethstats monitoring of authority nodes. Default: Off
+        --expose - Expose a specific container on ports 8180 / 8545 / 30303. Default: Config specific
 
 NOTE:
-    Custom spec files can be inserted by specifiying the path to the json file.
+    input.json - Custom spec files can be inserted by specifiying the path to the json file.
+    custom_chain.toml - Custom toml file defining multiple nodes. See customchain/config/example.toml for an example.
 "
 
 }
@@ -240,30 +239,30 @@ ARGS="$@"
 
 while [ "$1" != "" ]; do
     case $1 in
-         --name)           	    shift
+         --name)                shift
                                 CHAIN_NAME=$1
                                 ;;
         -c | --config )         shift
                                 CHAIN_ENGINE=$1
                                 ;;
-        -n | --nodes )    	    shift
-		                            CHAIN_NODES=$1
+        -n | --nodes )          shift
+                                CHAIN_NODES=$1
                                 ;;
-	      -r | --release)		      shift
+        -r | --release)         shift
                                 PARITY_RELEASE=$1
                                 ;;
-	      -e | --ethstats)	      shift
-				                        ETHSTATS=1
-				                        ;;
+        -e | --ethstats)        shift
+                                ETHSTATS=1
+                                ;;
         --enable-client)        shift
                                 CLIENT=1
                                 ;;
         --expose)               shift
                                 EXPOSE_CLIENT="$1"
                                 ;;
-				--chain)                shift
-				                        CHAIN_NETWORK=$1
-																;;
+        --chain)                shift
+                                CHAIN_NETWORK=$1
+                                ;;
         -h | --help )           help
                                 exit
                                 ;;
@@ -297,6 +296,12 @@ fi
 mkdir -p deployment/chain
 check_packages
 
+echo $CHAIN_ENGINE | grep -q toml
+if [ $? -eq 0 ] ; then
+   ./customchain/generate.py "$CHAIN_ENGINE"
+   exit 0
+fi
+
 if [ ! -z "$CHAIN_NETWORK" ]; then
   if [ ! -z "$PARITY_OPTIONS" ]; then
       cat config/docker/chain.yml | sed -e "s/CHAIN_NAME/$CHAIN_NETWORK/g" | sed -e "s@-d /parity/data@-d /parity/data $PARITY_OPTIONS@g"  > docker-compose.yml
@@ -315,9 +320,9 @@ elif [ "$CHAIN_ENGINE" == "dev" ] ; then
 elif [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [ "$CHAIN_ENGINE" == "tendermint" ] || [ -f "$CHAIN_ENGINE" ] ; then
   if [ $CHAIN_NODES ] ; then
      for x in ` seq $CHAIN_NODES ` ; do
-	   create_node_params $x
-	   create_reserved_peers_poa $x
-	   create_node_config_poa $x
+        create_node_params $x
+        create_reserved_peers_poa $x
+        create_node_config_poa $x
      done
      build_docker_config_poa
      build_docker_client
