@@ -1,6 +1,6 @@
    lient:
        container_name: client
-       image: parity/parity:beta 
+       image: parity/parity:beta
        ports:
        - 8080:8080
        - 8180:8180
