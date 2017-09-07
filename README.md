@@ -55,6 +55,32 @@ The output of this tool are two main items:
 1. A docker-compose.yml file which can be used with docker-compose to bring up and down the host(s). 
 2. A deployments directory which will contain the keys, spec files and everything else required to configure the chain.
 
+# Launch the parity chain
+
+Once the configuration is created you just need to run the docker-compose command to launch the machine or machines. This can be done via:
+```
+docker-compose up -d 
+```
+
+You will then be able to see the logs by running:
+``` 
+docker-compose logs -f 
+```
+
+In these logs you should see a token being generated to login to parity. Alternatively you can run the command:
+```
+docker-compose logs | grep token
+```
+
+Once you are logged into the web interface if you go to Add Accounts, then select the option recovery phrase and enter the account recovery phrase as ```password``` 
+
+You now have an account with lots of ether to send around. 
+
+To stop the containers run:
+```
+docker-compose down
+```
+
 # Configuration of parity deploy
 
 Once parity-deploy has been run it will generate configuration files which are kept in the ```deployment``` folder. There are a few subdirectories that may exist in this location:
@@ -108,28 +134,6 @@ All of the chains are templated from the config directory. Inside the config dir
  * config/spec/chain_header - An example header for the chain spec file.
  * config/spec/chain_footer - An example footer for the chain spec file.
 
-
-
-# Launch the parity chain
-
-Once the configuration is created you just need to run the docker-compose command to launch the machine or machines. This can be done via:
-```
-docker-compose up -d 
-```
-
-You will then be able to see the logs by running:
-``` 
-docker-compose logs -f 
-```
-
-In these logs you should see a token being generated to login to parity. Alternatively you can run the command:
-```
-docker-compose logs | grep token
-```
-
-Once you are logged into the web interface if you go to Add Accounts, then select the option recovery phrase and enter the account recovery phrase as ```password``` 
-
-You now have an account with lots of ether to send around. 
 
 # Adding custom containers
 
