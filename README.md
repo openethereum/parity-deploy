@@ -23,13 +23,17 @@ Required:
 * tendermint - Tendermint is another consensus engine that can be used with parity, however not as well tested as Authority Round.  
 * validatorset - Validtor Set is used to transition a chain from one validator to another at a certain block.
 * input.json - Use a custom input chain spec file used on all of the nodes.
+
 Optional:
 
 ```--name``` This option allows you to set the name of the chain in use. Default chain name is parity.
 
 ```--nodes``` The amount of nodes that will be used with an aura or tendermint network. By default one non-authority node is also created. Default value is 2 nodes.
 
-```--ethstats``` This option will start an ethstats monitoring instance that can be connected to on http://localhost:3001 
+```--ethstats``` This option will start an ethstats monitoring instance that can be connected to on http://localhost:3001
+
+```--expose``` This option will expose ports 8080, 8180, 8545 and 30303 on the container name given as an argument.
+
 
 # Using the tool
 
@@ -50,6 +54,32 @@ A three node proof of authority chain with one client acessable via 127.0.0.1:81
 The output of this tool are two main items:
 1. A docker-compose.yml file which can be used with docker-compose to bring up and down the host(s). 
 2. A deployments directory which will contain the keys, spec files and everything else required to configure the chain.
+
+# Launch the parity chain
+
+Once the configuration is created you just need to run the docker-compose command to launch the machine or machines. This can be done via:
+```
+docker-compose up -d 
+```
+
+You will then be able to see the logs by running:
+``` 
+docker-compose logs -f 
+```
+
+In these logs you should see a token being generated to login to parity. Alternatively you can run the command:
+```
+docker-compose logs | grep token
+```
+
+Once you are logged into the web interface if you go to Add Accounts, then select the option recovery phrase and enter the account recovery phrase as ```password``` 
+
+You now have an account with lots of ether to send around. 
+
+To stop the containers run:
+```
+docker-compose down
+```
 
 # Configuration of parity deploy
 
@@ -104,28 +134,6 @@ All of the chains are templated from the config directory. Inside the config dir
  * config/spec/chain_header - An example header for the chain spec file.
  * config/spec/chain_footer - An example footer for the chain spec file.
 
-
-
-# Launch the parity chain
-
-Once the configuration is created you just need to run the docker-compose command to launch the machine or machines. This can be done via:
-```
-docker-compose up -d 
-```
-
-You will then be able to see the logs by running:
-``` 
-docker-compose logs -f 
-```
-
-In these logs you should see a token being generated to login to parity. Alternatively you can run the command:
-```
-docker-compose logs | grep token
-```
-
-Once you are logged into the web interface if you go to Add Accounts, then select the option recovery phrase and enter the account recovery phrase as ```password``` 
-
-You now have an account with lots of ether to send around. 
 
 # Adding custom containers
 
