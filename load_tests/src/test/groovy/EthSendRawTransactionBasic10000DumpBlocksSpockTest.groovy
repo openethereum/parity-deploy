@@ -1,3 +1,4 @@
+import parity.JsonRpcClient
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovyx.gpars.ParallelEnhancer
