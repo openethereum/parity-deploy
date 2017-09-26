@@ -27,9 +27,12 @@ dependencies {
         grizzlyTyrus = '1.13.1'
     }
 
+    // https://mvnrepository.com/artifact/io.fabric8/kubernetes-client
+    compile group: 'io.fabric8', name: 'kubernetes-client', version: '2.6.3'
     compile(
             "org.codehaus.groovy:groovy-all:$groovyAll",
             files('lib/groovychart-0.1-SNAPSHOT.jar'),
+//            files('lib/kubernetes-client-2.6-SNAPSHOT.jar'),
             'jfree:jfreechart:1.0.12',
             'org.jfree:jcommon:1.0.23',
             'org.yaml:snakeyaml:1.18',

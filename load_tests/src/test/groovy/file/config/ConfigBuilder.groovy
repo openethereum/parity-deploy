@@ -44,11 +44,15 @@ class ConfigBuilder{
 
     static writeChainSpec(File chainSpecFile, String gasLimit, String gasLimitBoundDivisor, String stepDuration) {
         def chainSpec = new JsonSlurper().parseText(chainSpecFile.text)
+        editChainSpec(stepDuration, chainSpec, gasLimit, gasLimitBoundDivisor)
+        writeJson(chainSpecFile, chainSpec)
+    }
+
+    static void editChainSpec(String stepDuration, chainSpec, String gasLimit, String gasLimitBoundDivisor) {
         chainSpec.engine.authorityRound.params.stepDuration = stepDuration
         chainSpec.genesis.gasLimit = gasLimit
         chainSpec.params.gasLimitBoundDivisor = gasLimitBoundDivisor
         chainSpec.params.minGasLimit = gasLimit
-        writeJson(chainSpecFile, chainSpec)
     }
 
     static writeJson(File jsonFile, objectForJson) {
