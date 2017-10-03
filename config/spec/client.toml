@@ -7,6 +7,13 @@ password = ["/parity/password"]
 [network]
 reserved_peers = "/parity/reserved_peers"
 
+[websockets]
+disable = false
+port = 8546
+interface = "all"
+origins = ["http://127.0.0.1:8180"]
+apis = ["web3", "eth", "net", "parity", "traces", "rpc", "secretstore"]
+hosts = ["all"]
 
 [rpc]
 interface = "0.0.0.0"
