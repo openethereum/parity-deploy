@@ -54,7 +54,7 @@ fi
 genpw > deployment/$1/password
 ./config/utils/keygen.sh deployment/$1
 sed -i "s/CHAIN_NAME/$CHAIN_NAME/g" config/spec/example.spec
-parity account new --chain config/spec/example.spec --password deployment/$1/password --keys-path deployment/$1/ > deployment/$1/address.txt
+parity --chain config/spec/example.spec --keys-path deployment/$1/ account new --password deployment/$1/password  > deployment/$1/address.txt
 sed -i "s/$CHAIN_NAME/CHAIN_NAME/g" config/spec/example.spec
 echo "NETWORK_NAME=$CHAIN_NAME" > .env
 
