@@ -4,7 +4,7 @@
         "authorityRound": {
             "params": {
                 "gasLimitBoundDivisor": "0x400",
-                "stepDuration": "5",
+                "stepDuration": "2",
                 "validators" : {
                     "list": [ "0x0000000000000000000000000000000000000000" ]
                 }
