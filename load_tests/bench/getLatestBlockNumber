@@ -1,0 +1,1 @@
+./getBlockByNumber latest | jq '.result.number' | xargs printf "%d\n"

@@ -1,0 +1,5 @@
+
+FIRST='{"method":"eth_getBlockByNumber","params":["'
+SECOND='",true],"id":1,"jsonrpc":"2.0"}'
+
+curl --silent --data "${FIRST}$1${SECOND}"  -H "Content-Type: application/json" -X POST localhost:8545

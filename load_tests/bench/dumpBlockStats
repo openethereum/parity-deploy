@@ -1,0 +1,1 @@
+for block in $(seq 1 `./getLatestBlockNumber`); do ./getBlockInfo $block; done
