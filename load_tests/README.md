@@ -17,13 +17,7 @@ An easy way to run parity with docker would be for example
 
 ## Standard RPC corpora
 
-You may use the following files:
-- [eth_sendRawTransaction_basic_10000.rpc](https://drive.google.com/open?id=0Bxc6z62kZCsAV1YzcENZZHVZaVk)
-- [eth_sendTransaction_basic_10000.rpc](https://drive.google.com/open?id=0Bxc6z62kZCsAcFBMSHpNZ2pKQ1U)
-- [eth_signTransaction_basic_10000.rpc](https://drive.google.com/open?id=0Bxc6z62kZCsAdERLSXJ2ajdnU2M)
-- [personal_sendTransaction_basic_10000.rpc](https://drive.google.com/open?id=0Bxc6z62kZCsAUVRET0Rad0o1UFE)
-
-Each line in those `.rpc` files contains a JSON object to be fed to a standard RPC interface (IPC or HTTP). One way is presented in the simple `submit_corpus.sh` script, which can be ran like so
+Files can be found [here](https://drive.google.com/open?id=0Bxc6z62kZCsAZUNxUmsySGhZVjg). Each line in those `.rpc` files contains a JSON object to be fed to a standard RPC interface (IPC or HTTP). One way is presented in the simple `submit_corpus.sh` script, which can be ran like so
 ```
 ./submit_corpus.sh eth_sendRawTransaction_basic_10000.rpc
 ```
