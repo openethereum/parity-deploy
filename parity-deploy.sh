@@ -124,6 +124,15 @@ build_docker_client() {
     create_node_params client
     cp config/spec/client.toml deployment/client/
     cat config/docker/client.yml >> docker-compose.yml
+
+    # writing client dependencies
+    if [ "$CHAIN_NODES" > "0" ] ; then
+      echo "       depends_on:" >> docker-compose.yml
+
+      for x in ` seq 1 $CHAIN_NODES ` ; do
+        echo "       - \"host${x}\"" >> docker-compose.yml
+      done
+    fi
   fi
 }
 

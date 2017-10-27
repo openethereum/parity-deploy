@@ -15,4 +15,3 @@
        - ./deployment/client/${NETWORK_NAME}:/parity/data/keys/${NETWORK_NAME}
        - ./data/client:/parity/data
        command: --chain /parity/spec.json --config /parity/client.toml -d /parity/data --ui-interface "0.0.0.0" --ui-no-validation ui 
-
