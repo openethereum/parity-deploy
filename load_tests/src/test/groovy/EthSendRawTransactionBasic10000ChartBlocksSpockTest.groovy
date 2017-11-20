@@ -27,7 +27,7 @@ class EthSendRawTransactionBasic10000ChartBlocksSpockTest extends Specification 
     @Shared int transactionsProcessed = 0
     @Shared String password
     @Shared String workingDirPath = "./.."
-    @Shared File workingDir = new File("${workingDirPath}")
+    @Shared File workingDir = new File("$workingDirPath")
     @Shared chainSpecFile = "${workingDirPath}/deployment/chain/spec.json" as File
     @Shared ArrayList<BlockTime> chartDataSet = new ArrayList<>()
     @Shared String chartTitle
@@ -89,9 +89,6 @@ class EthSendRawTransactionBasic10000ChartBlocksSpockTest extends Specification 
         then:
         errors.size() == 0
         println "End of batch \n\n"
-
-//        cleanup:
-//            "sudo rm -rf ./data".execute null, workingDir
 
         where:
         batchSize | clientThreads | maxBlocksToCheck | gasLimit | gasLimitBoundDivisor | stepDuration | testRun

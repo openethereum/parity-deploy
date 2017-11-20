@@ -38,7 +38,7 @@ class ParityClient {
     static Duration getDurationBetweenBlockTimesByNumber(Number fromBlockNumber, Number toBlockNumber, rpcClientInstance) {
         Instant from = new DateTime((new BigInteger(rpcClientInstance.eth_getBlockByNumber(convertToHexFormat(fromBlockNumber), true).result.timestamp.substring(2), 16) as long) * 1000L).toInstant()
         Instant to = new DateTime((new BigInteger(rpcClientInstance.eth_getBlockByNumber(convertToHexFormat(toBlockNumber), true).result.timestamp.substring(2), 16) as long) * 1000L).toInstant()
-        return new Duration(from,to)
+        return new Duration(from, to)
     }
 
     static String convertToHexFormat(Number decimalNumber) {
@@ -56,10 +56,11 @@ class ParityClient {
         }
         return parityUrl
     }
+
     static waitForParityAlive(JsonRpcClient jsonRpcClientInstance) {
         Number latestBlockNumber
         def timeout = 6000
-        while (latestBlockNumber == null && timeout > 0 ) {
+        while (latestBlockNumber == null && timeout > 0) {
             try {
                 latestBlockNumber = getLatestBlockNumber(jsonRpcClientInstance)
             } catch (HttpHostConnectException e) {
@@ -76,6 +77,7 @@ class ParityClient {
             println "parity not ready for 60 seconds, probably bombed out"
         } else println "parity ready!"
     }
+
     static waitForParityIsMining(JsonRpcClient jsonRpcClientInstance) {
         def timeout = 6000
         boolean isMining = false
@@ -98,22 +100,25 @@ class ParityClient {
 
     static waitForMinimumBlocksProcessed(int transactionBatchSize, Integer minimumBlocks, Integer stepDuration, txProcessed, rpcClientInstance) {
 
-        while (txProcessed < transactionBatchSize) {
-            int currentBlock = 0
-            (0..minimumBlocks).each {
+        int currentBlock = 0
+        (0..minimumBlocks).each {
+            while (txProcessed < transactionBatchSize && currentBlock < minimumBlocks) {
                 try {
-                    def transactionCountByNumber = getBlockTransactionCountByNumber(rpcClientInstance, it as String)
-                    def latest = getLatestBlockNumber(rpcClientInstance)
+                    BigInteger transactionCountByNumber = getBlockTransactionCountByNumber(rpcClientInstance, it as String)
+                    int latest = getLatestBlockNumber(rpcClientInstance)
 
                     if (latest >= currentBlock) {
-                        println "block $it has $transactionCountByNumber blocks"
+                        println "current block: $currentBlock"
+                        println "latest block: $latest"
+                        println "block $it has $transactionCountByNumber TXs"
                         txProcessed = txProcessed + transactionCountByNumber
-                        currentBlock ++
+                        println "$txProcessed TXs processed so far"
+                        currentBlock++
                     }
                 } catch (NullPointerException e) {
                     println "block $it doesn't exist yet, latest block: ${getLatestBlockNumber(rpcClientInstance)}"
                 }
-                sleep(1000l* stepDuration)
+                sleep(1000l * stepDuration)
             }
         }
     }
@@ -121,7 +126,7 @@ class ParityClient {
     static submitTxsParallel(NonBlockingHashMap errorsMap, NonBlockingHashMap resultMap, threads, lines, parityUrl) {
         withPool(threads) {
             lines.eachParallel { txLine ->
-                    submitTx(txLine, errorsMap, resultMap, parityUrl)
+                submitTx(txLine, errorsMap, resultMap, parityUrl)
             }
         }
     }
