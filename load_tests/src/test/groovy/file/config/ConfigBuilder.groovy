@@ -12,7 +12,7 @@ import static parity.KubernetesController.getFirstPodIp
 
 class ConfigBuilder{
 
-    static writeComposeFile(File composeFile, String hostName) {
+    static writeComposeFile(File composeFile, String hostName, String authorityFilePath) {
         DumperOptions options = new DumperOptions()
         options.defaultScalarStyle = DumperOptions.ScalarStyle.SINGLE_QUOTED
         options.splitLines = false
@@ -20,7 +20,7 @@ class ConfigBuilder{
         LinkedHashMap compose = yaml.load(composeFile.text)
 
         compose.services.host1.command = getCommand("/parity/spec.json", "/parity/data")
-        compose.services.host1.volumes[3] = "./deployment/1/authority.edited.toml:/parity/authority.toml:ro"
+        compose.services.host1.volumes[3] = "./deployment/1/$authorityFilePath:/parity/authority.toml:ro" as String
         compose.services.host1.container_name = hostName
 //        compose.services.put(hostName, compose.services.host1)
         compose.services.remove('client')

@@ -45,8 +45,8 @@ class EthSendRawTransactionBasic10000ChartBlocksSpockTest extends Specification 
 
         jsonRpcClientInstance = new JsonRpcClient(parityUrl)
         def composeFile = "${workingDirPath}/docker-compose.yml" as File
-        writeComposeFile(composeFile, 'host1')
         engineSigner = removeEngineSigner(workingDirPath)
+        writeComposeFile(composeFile, 'host1', "authority.edited.toml")
         "sync".execute()
         password = getPasswordFromFile(workingDirPath)
         runParityLocally(workingDir)
