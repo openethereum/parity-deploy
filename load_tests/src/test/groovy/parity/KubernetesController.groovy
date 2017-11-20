@@ -11,11 +11,13 @@ import io.fabric8.kubernetes.api.model.ContainerPortBuilder
 import io.fabric8.kubernetes.api.model.KeyToPath
 import io.fabric8.kubernetes.api.model.Namespace
 import io.fabric8.kubernetes.api.model.NamespaceBuilder
+import io.fabric8.kubernetes.api.model.Pod
 import io.fabric8.kubernetes.api.model.PodSpec
 import io.fabric8.kubernetes.api.model.PodSpecBuilder
 import io.fabric8.kubernetes.api.model.PodTemplateSpec
 import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder
 import io.fabric8.kubernetes.api.model.Service
+import io.fabric8.kubernetes.api.model.ServiceAssert
 import io.fabric8.kubernetes.api.model.ServiceBuilder
 import io.fabric8.kubernetes.api.model.ServicePort
 import io.fabric8.kubernetes.api.model.ServicePortBuilder
@@ -27,59 +29,72 @@ import io.fabric8.kubernetes.api.model.extensions.Deployment
 import io.fabric8.kubernetes.api.model.extensions.DeploymentBuilder
 import io.fabric8.kubernetes.api.model.extensions.DeploymentSpec
 import io.fabric8.kubernetes.api.model.extensions.DeploymentSpecBuilder
+import io.fabric8.kubernetes.assertions.PodSelectionAssert
 import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import io.fabric8.kubernetes.client.KubernetesClient
 import io.fabric8.kubernetes.client.KubernetesClientException
 import io.fabric8.kubernetes.client.handlers.ConfigMapHandler
 import io.fabric8.kubernetes.client.handlers.DeploymentHandler
+import io.fabric8.kubernetes.client.handlers.PodHandler
 
 import static groovy.io.FileType.FILES
 
 class KubernetesController {
 
-    static Service launchParityNetwork(workingDirPath, String jsonRpcThreads, Integer nodes, LinkedHashMap<String,
-            String> labels, String namespace, KubernetesClient kubernetesClient) {
-        String parityconfigName = 'parityconfig'
-        String deploymentName = "parity-benchmark-deployment"
-        String networkName = "aura_test"
-        String configVolumeName = "$parityconfigName-volume"
-        String parityConfigRoot = "${workingDirPath}/deployment"
-        File chaindir = new File("${parityConfigRoot}/chain/")
-        File secretsdir = new File("${parityConfigRoot}/1/")
-        File networkdir = new File("$parityConfigRoot/1/$networkName")
+    public static final String PARITYCONFIG = 'parityconfig'
+    public static final String deploymentName = "parity-benchmark-deployment"
+    public static final String networkName = "aura_test"
+    public static final String configVolumeName = "${PARITYCONFIG}-volume"
+    public static final List ports = [8180, 8545, 8546, 30303]
+    public static final defaultNodes = 1
+    public static final String PARITY = 'parity'
+    public static final String SVC_NAME = "parity-benchmark-service"
+    public static final String NAMESPACE = "parity-benchmark-namespace-1"
+    public static final String CONFIG_REFERENCE = '/parity/authority.edited.toml'
+//    public static final String CONFIG_REFERENCE = '/parity/authority.toml'
+    public static final String CHAIN_SPEC_REFERENCE = '/parity/spec.json'
+    public static final String RESERVED_PEERS_REFERENCE = '/parity/reserved_peers'
+    public static final String POD_NAME = 'parity-benchmark-pod'
+    public static final String CONTAINER_IMAGE = 'parity/parity:nightly'
+    public static final String SERVICE_NAME = 'parity-benchmark-service'
 
-        List<String> args = [
-                '--config', '/parity/authority.edited.toml',
-                '--chain', '/parity/spec.json',
-                '--reserved-peers', '/parity/reserved_peers',
-                "--jsonrpc-server-threads $jsonRpcThreads" as String
-        ]
+    static String getFirstPodIp(String namespace, KubernetesClient kubernetesClient) {
+        kubernetesClient.pods().inNamespace(namespace).list().items[0].status.podIP
+    }
 
-        List ports = [8180, 8545, 8546, 30303]
-        LinkedHashMap configs = [:]
+    static ConfigMap replaceConfig(String workingDirPath, String namespace, KubernetesClient kubernetesClient) {
+        LinkedHashMap configs = setupConfigArray(workingDirPath)
+        return replaceExistingConfig(configs, PARITYCONFIG, namespace, kubernetesClient)
+    }
 
-        secretsdir.eachFile(FILES) {
-            configs.put(it.name, it.text)
-        }
-        chaindir.eachFile(FILES) {
-            configs.put(it.name, it.text)
-        }
-        networkdir.eachFile(FILES) {
-            configs.put(it.name, it.text)
-        }
+    static ConfigMap replaceDeployment(String namespace, KubernetesClient kubernetesClient, String testRun, String workingDirPath) {
+        def labels =  [testrun: testRun, app: PARITY]
+        LinkedHashMap configs = setupConfigArray(workingDirPath)
+        replaceExistingConfig(configs, PARITYCONFIG, namespace, kubernetesClient)
+        replaceExistingDeployment(deploymentName, namespace, kubernetesClient, labels, getDeploymentSpec(configs, '4', labels))
+    }
+
+    static ConfigMap getCurrentConfig(KubernetesClient kubernetesClient) {
+        kubernetesClient.configMaps().inNamespace(NAMESPACE).withName(PARITYCONFIG).get()
+    }
+
+    static String getCurrentAuthority(KubernetesClient kubernetesClient) {
+        kubernetesClient.configMaps().inNamespace(NAMESPACE).withName(PARITYCONFIG).get().data.get("authority.toml")
+    }
+
+    static Service launchParityNetwork(workingDirPath, String jsonRpcThreads, String namespace, KubernetesClient kubernetesClient, LinkedHashMap<String, String> labels) {
 
         createNameSpaceIfNotExist(namespace, kubernetesClient)
 
-        ConfigMap networkConfig = removeExistingConfig(configs, parityconfigName, namespace, kubernetesClient)
+        LinkedHashMap configs = setupConfigArray(workingDirPath)
+
+        ConfigMap networkConfig = removeExistingConfig(configs, PARITYCONFIG, namespace, kubernetesClient)
+
+        kubernetesClient.configMaps().withName(PARITYCONFIG).createOrReplace(networkConfig)
 
         removeExistingDeployment(deploymentName, namespace, kubernetesClient, labels)
 
-        kubernetesClient.configMaps().withName(parityconfigName).createOrReplace(networkConfig)
-
-        Volume volume = buildVolume(configs, parityconfigName, configVolumeName)
-        ArrayList<VolumeMount> volumeMountList = buildVolumeMountList(configs, parityconfigName, configVolumeName)
-
-        DeploymentSpec deploymentSpec = buildNewDeploymentSpec(args, generateContainerPortList(ports), volumeMountList, volume, nodes, labels)
+        DeploymentSpec deploymentSpec = getDeploymentSpec(configs, jsonRpcThreads, labels)
 
         Deployment newDeployment = new DeploymentBuilder()
                 .withSpec(deploymentSpec)
@@ -102,13 +117,52 @@ class KubernetesController {
     }
 
     public
+    static DeploymentSpec getDeploymentSpec(LinkedHashMap<String, String> configs, String jsonRpcThreads, LinkedHashMap<String, String> labels) {
+        Volume volume = buildVolume(configs, PARITYCONFIG, configVolumeName)
+        ArrayList<VolumeMount> volumeMountList = buildVolumeMountList(configs, PARITYCONFIG, configVolumeName)
+        List<String> args = getArgs(jsonRpcThreads)
+
+        DeploymentSpec deploymentSpec = buildNewDeploymentSpec(args, generateContainerPortList(ports), volumeMountList, volume, defaultNodes, labels)
+        deploymentSpec
+    }
+
+    public static List<String> getArgs(String jsonRpcThreads) {
+        List<String> args = [
+                '--config', CONFIG_REFERENCE,
+                '--chain', CHAIN_SPEC_REFERENCE,
+                '--reserved-peers', RESERVED_PEERS_REFERENCE,
+                '--jsonrpc-server-threads', "$jsonRpcThreads" as String
+        ]
+        args
+    }
+
+    public static LinkedHashMap setupConfigArray(workingDirPath) {
+        String parityConfigRoot = "${workingDirPath}/deployment"
+        File chaindir = new File("${parityConfigRoot}/chain/")
+        File secretsdir = new File("${parityConfigRoot}/1/")
+        File networkdir = new File("$parityConfigRoot/1/${networkName}")
+
+        LinkedHashMap configs = [:]
+
+        secretsdir.eachFile(FILES) {
+            configs.put(it.name, it.text)
+        }
+        chaindir.eachFile(FILES) {
+            configs.put(it.name, it.text)
+        }
+        networkdir.eachFile(FILES) {
+            configs.put(it.name, it.text)
+        }
+        configs
+    }
+
     static Service createService(List<Integer> ports, LinkedHashMap<String, String> labels, String namespace, DefaultKubernetesClient kubernetesClient) {
         List servicePorts = generateServicePortList(ports)
 
         Service parityservice = new ServiceBuilder()
                 .withNewSpec().withType('LoadBalancer')
                 .withSelector(labels).withSelector(labels).withPorts(servicePorts)
-                .and().withNewMetadata().withName('parity-benchmark-service').withNamespace(namespace).withLabels(labels)
+                .and().withNewMetadata().withName(SERVICE_NAME).withNamespace(namespace).withLabels(labels)
                 .and().build()
 
         kubernetesClient.services().delete(parityservice)
@@ -164,12 +218,35 @@ class KubernetesController {
         deploymentHandler.delete(client.httpClient, client.configuration, namespace, deploymentDel)
     }
 
+    static void deletePodsInNamespace(String namespace, DefaultKubernetesClient client) {
+        client.inNamespace(namespace).pods().list().items.each { Pod pod ->
+//            PodHandler podHandler = new PodHandler().delete(client.httpClient,client.configuration,namespace,pod)
+            def isDeleted = new PodHandler().delete(client.httpClient,client.configuration,namespace,pod)
+            println "deleted pod: $pod.metadata.name"
+        }
+
+    }
+    static void replaceExistingDeployment(String deploymentName, String namespace, DefaultKubernetesClient client, labels, DeploymentSpec spec) {
+        DeploymentHandler deploymentHandler = new DeploymentHandler()
+        Deployment deploymentDel = new DeploymentBuilder().withSpec(spec)
+                .withNewMetadata()
+                .withName(deploymentName)
+                .withLabels(labels)
+                .withNamespace(namespace)
+                .and()
+                .build();
+
+        deploymentHandler.delete(client.httpClient, client.configuration, namespace, deploymentDel)
+
+        deploymentHandler.create(client.httpClient, client.configuration, namespace, deploymentDel)
+    }
+
     static DeploymentSpec buildNewDeploymentSpec(List<String> args, List<ContainerPort> containerPortList,
                                                  ArrayList<VolumeMount> volumeMountList, Volume volume,
                                                  int nodes, LinkedHashMap<String, String> labels) {
         Container container = new ContainerBuilder()
-                .withName('parity-benchmark-pod')
-                .withImage('parity/parity:nightly')
+                .withName(POD_NAME)
+                .withImage(CONTAINER_IMAGE)
                 .withImagePullPolicy('Always')
                 .withArgs(args)
                 .withPorts(containerPortList)
@@ -233,6 +310,19 @@ class KubernetesController {
         volumeMountList
     }
 
+    static ConfigMap replaceExistingConfig(LinkedHashMap<String, String> configs, String parityconfigName, String namespace, DefaultKubernetesClient client) {
+        ConfigMapHandler configMapHandler = new ConfigMapHandler()
+
+        ConfigMap networkConfig = new ConfigMapBuilder().withData(configs)
+                .withNewMetadata()
+                .withName(parityconfigName)
+                .withNamespace(namespace)
+                .and().build()
+
+        configMapHandler.replace(client.httpClient, client.configuration, namespace, networkConfig)
+        networkConfig
+    }
+
     static ConfigMap removeExistingConfig(LinkedHashMap<String, String> configs, String parityconfigName, String namespace, DefaultKubernetesClient client) {
         ConfigMapHandler configMapHandler = new ConfigMapHandler()
 
@@ -246,4 +336,15 @@ class KubernetesController {
         networkConfig
     }
 
+    static void waitForPodReady(KubernetesClient client, testRun, Integer nodes) {
+        Map<String, String> labels =  [testrun: testRun, app: PARITY]
+        def selectionAssert = new PodSelectionAssert(client, nodes, labels,null,'')
+        selectionAssert.isPodReadyForPeriod(1500l,500l)
+    }
+
+//    static void waitForServiceReady(KubernetesClient client, testRun, Integer nodes) {
+//        Map<String, String> labels =  [testrun: testRun, app: PARITY]
+//        def selectionAssert = new ServiceAssert(new Service())
+//        selectionAssert.isPodReadyForPeriod(1500l,500l)
+//    }
 }

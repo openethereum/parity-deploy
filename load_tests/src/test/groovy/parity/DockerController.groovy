@@ -2,7 +2,7 @@ package parity
 
 class DockerController {
 
-    static def runParity(File workingDir) {
+    static def runParityLocally(File workingDir) {
         "docker-compose up ".execute null, workingDir
     }
 

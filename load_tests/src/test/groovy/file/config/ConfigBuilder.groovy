@@ -4,8 +4,11 @@ import com.moandjiezana.toml.Toml
 import com.moandjiezana.toml.TomlWriter
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
+import io.fabric8.kubernetes.client.KubernetesClient
 import org.yaml.snakeyaml.DumperOptions
 import org.yaml.snakeyaml.Yaml
+
+import static parity.KubernetesController.getFirstPodIp
 
 class ConfigBuilder{
 
@@ -24,6 +27,11 @@ class ConfigBuilder{
 //        compose.services.remove('host1')
 
         writeFile(composeFile, yaml.dump(compose))
+    }
+
+    static String getEngineSigner(String workingDirPath) {
+        Toml toml = new Toml().read(new File("$workingDirPath/deployment/1/authority.toml"))
+        return toml.mining.engine_signer
     }
 
     static String removeEngineSigner(String workingDirPath) {
@@ -75,14 +83,22 @@ class ConfigBuilder{
         buffWriter.close()
     }
 
+    static writeReservedPeerIp(String deploymentDir, KubernetesClient client, String namespace) {
+        String podIp = getFirstPodIp(namespace, client)
+        if (!podIp) throw new Exception("no pod ip")
+        String pubKey = new File("$deploymentDir/deployment/1/key.pub").getText('UTF-8')
+        String reservedPeers = "enode://$pubKey@$podIp:30303"
+        writeFile(new File("${deploymentDir}/deployment/chain/reserved_peers"), reservedPeers)
+    }
+
     static writeReservedPeers(deploymentDir, containerName) {
-        String pubKey = new File("$deploymentDir/1/key.pub").getText('UTF-8')
+        String pubKey = new File("$deploymentDir/deployment/1/key.pub").getText('UTF-8')
         String reservedPeers = "enode://$pubKey@$containerName:30303"
 
-//        runParity(chainSpecFile, workingDir)
+//        runParityLocally(chainSpecFile, workingDir)
         sleep(5000l)
 
-        writeFile(new File("${deploymentDir}/chain/reserved_peers"), reservedPeers)
+        writeFile(new File("${deploymentDir}/deployment/chain/reserved_peers"), reservedPeers)
     }
 
     static String getCommand(String specFile, String dataDir) {

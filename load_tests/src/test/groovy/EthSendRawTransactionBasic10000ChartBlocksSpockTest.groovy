@@ -48,8 +48,8 @@ class EthSendRawTransactionBasic10000ChartBlocksSpockTest extends Specification 
         engineSigner = removeEngineSigner(workingDirPath)
         "sync".execute()
         password = getPasswordFromFile(workingDirPath)
-        runParity(workingDir)
-        waitForParityAlive(jsonRpcClientInstance)
+        runParityLocally(workingDir)
+        waitForParityAlive(parityService)
     }
 
     @Unroll("Submission of #batchSize transaction with gasLimit of #gasLimit and gasLimitBoundDivisor #gasLimitBoundDivisor should not throw error")
@@ -59,7 +59,7 @@ class EthSendRawTransactionBasic10000ChartBlocksSpockTest extends Specification 
         writeChainSpec(chainSpecFile, convertToHexFormat(gasLimit), convertToHexFormat(gasLimitBoundDivisor), stepDuration as String)
         "sync".execute()
         "docker restart host1".execute()
-        waitForParityAlive(jsonRpcClientInstance)
+        waitForParityAlive(parityService)
 
         when:
         List lines = fileContents.readLines().subList(0, batchSize)
@@ -79,7 +79,7 @@ class EthSendRawTransactionBasic10000ChartBlocksSpockTest extends Specification 
         println "$batchSize transactions submitted in ${duration} ms with ${errors.size()} errors \n\n"
         transactionsProcessed = 0
         addEngineSigner(jsonRpcClientInstance, engineSigner, password)
-        waitForMinimumBlocksProcessed(batchSize, maxBlocksToCheck, stepDuration, transactionsProcessed, jsonRpcClientInstance, engineSigner, password)
+        waitForMinimumBlocksProcessed(batchSize, maxBlocksToCheck, stepDuration, transactionsProcessed, jsonRpcClientInstance)
 
         plotResults("GasLimit $gasLimit StepDuration: $stepDuration" as String, stepDuration)
 
@@ -92,11 +92,11 @@ class EthSendRawTransactionBasic10000ChartBlocksSpockTest extends Specification 
 
         where:
         batchSize | clientThreads | maxBlocksToCheck | gasLimit | gasLimitBoundDivisor | stepDuration | testRun
-        10000     | 15           | 5                | 150000000 | 100000000            | 1            | 'test1'
-        10000     | 15           | 5                | 150000000 | 100000000            | 2            | 'test2'
-        10000     | 15           | 5                | 150000000 | 100000000            | 3            | 'test3'
-        10000     | 15           | 5                | 150000000 | 100000000            | 4            | 'test4'
-        10000     | 15           | 5                | 150000000 | 100000000            | 5            | 'test5'
+        1000     | 15           | 5                | 150000000 | 100000000            | 1            | 'test1'
+        1000     | 15           | 5                | 150000000 | 100000000            | 2            | 'test2'
+        1000     | 15           | 5                | 150000000 | 100000000            | 3            | 'test3'
+        1000     | 15           | 5                | 150000000 | 100000000            | 4            | 'test4'
+        1000     | 15           | 5                | 150000000 | 100000000            | 5            | 'test5'
     }
 
     def plotResults(String rowTitle, stepDuration) {

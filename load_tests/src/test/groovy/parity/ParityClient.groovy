@@ -1,6 +1,8 @@
 package parity
 
 import groovy.json.JsonSlurper
+import io.fabric8.kubernetes.api.model.Service
+import io.fabric8.kubernetes.client.DefaultKubernetesClient
 import org.apache.http.conn.HttpHostConnectException
 import org.cliffc.high_scale_lib.NonBlockingHashMap
 import org.joda.time.DateTime
@@ -10,6 +12,7 @@ import org.joda.time.Instant
 import static groovyx.gpars.GParsPool.withPool
 
 class ParityClient {
+    static private String parityUrl
 
     static int getBlockTimeMillisInDayByNumber(Number blockNumber, JsonRpcClient rpcClientInstance) {
         new DateTime((new BigInteger(rpcClientInstance.eth_getBlockByNumber(convertToHexFormat(blockNumber), true).result.timestamp.substring(2), 16) as long) * 1000L).millisOfDay().get()
@@ -42,11 +45,23 @@ class ParityClient {
         "0x${Long.toHexString(decimalNumber.value)}"
     }
 
-    static waitForParityAlive(JsonRpcClient jsonRpcClientInstance) {
+    static String waitForParityServiceIp(String namespace, String serviceName, Service service) {
+        String parityIp = ""
+        while (!parityIp) {
+            parityIp = new DefaultKubernetesClient().services().inNamespace(namespace).withName(serviceName).get().status.loadBalancer.ingress.ip[0]
+//                parityIp = service.status.loadBalancer.ingress.ip[0]
+            parityUrl = "http://$parityIp:8545/"
+            println "Load Balancer IP: $parityIp"
+            sleep(500l)
+        }
+        return parityUrl
+    }
+    static waitForParityAlive(service) {
         Number latestBlockNumber
         def timeout = 6000
-        while (latestBlockNumber == null && timeout > 0) {
+        while (latestBlockNumber == null && timeout > 0 ) {
             try {
+                JsonRpcClient jsonRpcClientInstance = new JsonRpcClient(parityUrl)
                 latestBlockNumber = getLatestBlockNumber(jsonRpcClientInstance)
             } catch (HttpHostConnectException e) {
                 println "parity not ready yet"
@@ -82,7 +97,7 @@ class ParityClient {
         } else println "parity mining!"
     }
 
-    static waitForMinimumBlocksProcessed(int transactionBatchSize, Integer minimumBlocks, Integer stepDuration, txProcessed, rpcClientInstance, signer, password) {
+    static waitForMinimumBlocksProcessed(int transactionBatchSize, Integer minimumBlocks, Integer stepDuration, txProcessed, rpcClientInstance) {
 
         while (txProcessed < transactionBatchSize) {
             int currentBlock = 0
@@ -97,7 +112,7 @@ class ParityClient {
                         currentBlock ++
                     }
                 } catch (NullPointerException e) {
-                    println "block $it doesn't exist yet"
+                    println "block $it doesn't exist yet, latest block: ${getLatestBlockNumber(rpcClientInstance)}"
                 }
                 sleep(1000l* stepDuration)
             }
