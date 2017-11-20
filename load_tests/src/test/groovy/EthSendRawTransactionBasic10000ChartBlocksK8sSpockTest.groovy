@@ -20,7 +20,6 @@ import static parity.DockerController.bringDownParity
 import static parity.KubernetesController.NAMESPACE
 import static parity.KubernetesController.PARITY
 import static parity.KubernetesController.SVC_NAME
-import static parity.KubernetesController.getCurrentAuthority
 import static parity.KubernetesController.launchParityNetwork
 import static parity.KubernetesController.waitForPodReady
 import static parity.ParityClient.*
@@ -75,7 +74,7 @@ class EthSendRawTransactionBasic10000ChartBlocksK8sSpockTest extends Specificati
 //        def authority = getCurrentAuthority(kubernetesClient)
 //        deletePodsInNamespace(NAMESPACE,kubernetesClient)
         waitForPodReady(kubernetesClient, testRun, nodes)
-        waitForParityAlive(null)
+        waitForParityAlive(new JsonRpcClient(parityUrl))
 //        addEngineSigner(jsonRpcClientInstance, engineSigner, password)
 
         when:

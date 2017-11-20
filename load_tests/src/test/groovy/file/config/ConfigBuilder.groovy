@@ -102,7 +102,8 @@ class ConfigBuilder{
     }
 
     static String getCommand(String specFile, String dataDir) {
-        "--chain $specFile --config /parity/authority.toml -d $dataDir --gasprice 0  --jsonrpc-server-threads 4  --fast-and-loose" as String
+//        "--chain $specFile --config /parity/authority.toml -d $dataDir --gasprice 0  --jsonrpc-server-threads 4  --fast-and-loose" as String
+        "--chain $specFile --config /parity/authority.toml -d $dataDir --gasprice 0  --fast-and-loose" as String
     }
 
 }

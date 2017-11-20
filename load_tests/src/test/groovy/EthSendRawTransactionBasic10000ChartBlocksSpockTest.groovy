@@ -1,6 +1,7 @@
 import org.jfree.chart.JFreeChart
 import org.jfree.data.xy.XYSeries
 import org.jfree.data.xy.XYSeriesCollection
+import org.joda.time.Duration
 import parity.JsonRpcClient
 import groovyx.gpars.ParallelEnhancer
 import org.cliffc.high_scale_lib.NonBlockingHashMap
@@ -35,7 +36,7 @@ class EthSendRawTransactionBasic10000ChartBlocksSpockTest extends Specification 
 
     void setupSpec() {
         chartTitle = 'Txs / Block against Gas Limit and Step Duration'
-        "docker pull parity/parity:nightly".execute()
+        "docker pull parity/parity:stable".execute()
         def sout = new StringBuilder(), serr = new StringBuilder()
         def proc = "./parity-deploy.sh --config aura --nodes 1 --name aura_test".execute(null, workingDir)
         proc.consumeProcessOutput(sout, serr)
@@ -49,7 +50,7 @@ class EthSendRawTransactionBasic10000ChartBlocksSpockTest extends Specification 
         "sync".execute()
         password = getPasswordFromFile(workingDirPath)
         runParityLocally(workingDir)
-        waitForParityAlive(parityService)
+        waitForParityAlive(new JsonRpcClient(parityUrl))
     }
 
     @Unroll("Submission of #batchSize transaction with gasLimit of #gasLimit and gasLimitBoundDivisor #gasLimitBoundDivisor should not throw error")
@@ -59,7 +60,7 @@ class EthSendRawTransactionBasic10000ChartBlocksSpockTest extends Specification 
         writeChainSpec(chainSpecFile, convertToHexFormat(gasLimit), convertToHexFormat(gasLimitBoundDivisor), stepDuration as String)
         "sync".execute()
         "docker restart host1".execute()
-        waitForParityAlive(parityService)
+        waitForParityAlive(new JsonRpcClient(parityUrl))
 
         when:
         List lines = fileContents.readLines().subList(0, batchSize)
@@ -88,15 +89,17 @@ class EthSendRawTransactionBasic10000ChartBlocksSpockTest extends Specification 
         then:
         errors.size() == 0
         println "End of batch \n\n"
-        "sudo rm -rf ./data".execute null, workingDir
+
+//        cleanup:
+//            "sudo rm -rf ./data".execute null, workingDir
 
         where:
         batchSize | clientThreads | maxBlocksToCheck | gasLimit | gasLimitBoundDivisor | stepDuration | testRun
-        1000     | 15           | 5                | 150000000 | 100000000            | 1            | 'test1'
-        1000     | 15           | 5                | 150000000 | 100000000            | 2            | 'test2'
-        1000     | 15           | 5                | 150000000 | 100000000            | 3            | 'test3'
-        1000     | 15           | 5                | 150000000 | 100000000            | 4            | 'test4'
-        1000     | 15           | 5                | 150000000 | 100000000            | 5            | 'test5'
+        1000     | 15           | 1                | 150000000 | 100000000            | 1            | 'test1'
+        1000     | 15           | 1                | 150000000 | 100000000            | 2            | 'test2'
+        1000     | 15           | 1                | 150000000 | 100000000            | 3            | 'test3'
+        1000     | 15           | 1                | 150000000 | 100000000            | 4            | 'test4'
+        1000     | 15           | 1                | 150000000 | 100000000            | 5            | 'test5'
     }
 
     def plotResults(String rowTitle, stepDuration) {
@@ -126,7 +129,7 @@ class EthSendRawTransactionBasic10000ChartBlocksSpockTest extends Specification 
                     blockJson       : "$blockJson"
             ])
 
-            def durationBetweenBlockTimesByNumber = stepDuration
+            Duration durationBetweenBlockTimesByNumber = new Duration(stepDuration as long)
             if (it>1) {
                 durationBetweenBlockTimesByNumber = getDurationBetweenBlockTimesByNumber(Math.max(0, it - 1), it, jsonRpcClientInstance)
             }

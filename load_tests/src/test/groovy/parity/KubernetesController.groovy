@@ -55,7 +55,7 @@ class KubernetesController {
     public static final String CHAIN_SPEC_REFERENCE = '/parity/spec.json'
     public static final String RESERVED_PEERS_REFERENCE = '/parity/reserved_peers'
     public static final String POD_NAME = 'parity-benchmark-pod'
-    public static final String CONTAINER_IMAGE = 'parity/parity:nightly'
+    public static final String CONTAINER_IMAGE = 'parity/parity:beta'
     public static final String SERVICE_NAME = 'parity-benchmark-service'
 
     static String getFirstPodIp(String namespace, KubernetesClient kubernetesClient) {
@@ -131,7 +131,9 @@ class KubernetesController {
                 '--config', CONFIG_REFERENCE,
                 '--chain', CHAIN_SPEC_REFERENCE,
                 '--reserved-peers', RESERVED_PEERS_REFERENCE,
-                '--jsonrpc-server-threads', "$jsonRpcThreads" as String
+                '-d', '/var/parity',
+                '--keys-path', '/parity',
+//                '--jsonrpc-server-threads', "$jsonRpcThreads" as String
         ]
         args
     }

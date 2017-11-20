@@ -56,12 +56,11 @@ class ParityClient {
         }
         return parityUrl
     }
-    static waitForParityAlive(service) {
+    static waitForParityAlive(JsonRpcClient jsonRpcClientInstance) {
         Number latestBlockNumber
         def timeout = 6000
         while (latestBlockNumber == null && timeout > 0 ) {
             try {
-                JsonRpcClient jsonRpcClientInstance = new JsonRpcClient(parityUrl)
                 latestBlockNumber = getLatestBlockNumber(jsonRpcClientInstance)
             } catch (HttpHostConnectException e) {
                 println "parity not ready yet"
