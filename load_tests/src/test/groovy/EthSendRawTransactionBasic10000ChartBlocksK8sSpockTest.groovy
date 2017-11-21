@@ -8,6 +8,7 @@ import org.jfree.chart.JFreeChart
 import org.jfree.data.xy.XYSeries
 import org.jfree.data.xy.XYSeriesCollection
 import parity.JsonRpcClient
+import parity.KubernetesController
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -18,7 +19,9 @@ import static org.jfree.chart.ChartFactory.createScatterPlot
 import static org.jfree.chart.plot.PlotOrientation.VERTICAL
 import static parity.DockerController.bringDownParity
 import static parity.KubernetesController.NAMESPACE
+import static parity.KubernetesController.NIGHTLY_IMAGE
 import static parity.KubernetesController.PARITY
+import static parity.KubernetesController.STABLE_IMAGE
 import static parity.KubernetesController.SVC_NAME
 import static parity.KubernetesController.launchParityNetwork
 import static parity.KubernetesController.waitForPodReady
@@ -55,7 +58,8 @@ class EthSendRawTransactionBasic10000ChartBlocksK8sSpockTest extends Specificati
         engineSigner  = getEngineSigner(workingDirPath)
         "sync".execute()
         password = getPasswordFromFile(workingDirPath)
-        Service parityService = launchParityNetwork(workingDirPath, '4', NAMESPACE, kubernetesClient,[testrun: 'test1', app: PARITY])
+        Service parityService = launchParityNetwork(workingDirPath, '4', NAMESPACE,
+                kubernetesClient, [testrun: 'test1', app: PARITY], STABLE_IMAGE)
         parityUrl = waitForParityServiceIp(NAMESPACE, SVC_NAME, parityService)
         jsonRpcClientInstance = new JsonRpcClient(parityUrl)
     }

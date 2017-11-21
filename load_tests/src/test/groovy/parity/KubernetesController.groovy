@@ -17,7 +17,6 @@ import io.fabric8.kubernetes.api.model.PodSpecBuilder
 import io.fabric8.kubernetes.api.model.PodTemplateSpec
 import io.fabric8.kubernetes.api.model.PodTemplateSpecBuilder
 import io.fabric8.kubernetes.api.model.Service
-import io.fabric8.kubernetes.api.model.ServiceAssert
 import io.fabric8.kubernetes.api.model.ServiceBuilder
 import io.fabric8.kubernetes.api.model.ServicePort
 import io.fabric8.kubernetes.api.model.ServicePortBuilder
@@ -55,7 +54,9 @@ class KubernetesController {
     public static final String CHAIN_SPEC_REFERENCE = '/parity/spec.json'
     public static final String RESERVED_PEERS_REFERENCE = '/parity/reserved_peers'
     public static final String POD_NAME = 'parity-benchmark-pod'
-    public static final String CONTAINER_IMAGE = 'parity/parity:beta'
+    public static final String NIGHTLY_IMAGE = 'parity/parity:nightly'
+    public static final String BETA_IMAGE = 'parity/parity:beta'
+    public static final String STABLE_IMAGE = 'parity/parity:stable'
     public static final String SERVICE_NAME = 'parity-benchmark-service'
 
     static String getFirstPodIp(String namespace, KubernetesClient kubernetesClient) {
@@ -67,11 +68,11 @@ class KubernetesController {
         return replaceExistingConfig(configs, PARITYCONFIG, namespace, kubernetesClient)
     }
 
-    static ConfigMap replaceDeployment(String namespace, KubernetesClient kubernetesClient, String testRun, String workingDirPath) {
+    static ConfigMap replaceDeployment(String namespace, KubernetesClient kubernetesClient, String testRun, String workingDirPath, String containerImage) {
         def labels =  [testrun: testRun, app: PARITY]
         LinkedHashMap configs = setupConfigArray(workingDirPath)
         replaceExistingConfig(configs, PARITYCONFIG, namespace, kubernetesClient)
-        replaceExistingDeployment(deploymentName, namespace, kubernetesClient, labels, getDeploymentSpec(configs, '4', labels))
+        replaceExistingDeployment(deploymentName, namespace, kubernetesClient, labels, getDeploymentSpec(configs, '4', labels, containerImage))
     }
 
     static ConfigMap getCurrentConfig(KubernetesClient kubernetesClient) {
@@ -82,7 +83,7 @@ class KubernetesController {
         kubernetesClient.configMaps().inNamespace(NAMESPACE).withName(PARITYCONFIG).get().data.get("authority.toml")
     }
 
-    static Service launchParityNetwork(workingDirPath, String jsonRpcThreads, String namespace, KubernetesClient kubernetesClient, LinkedHashMap<String, String> labels) {
+    static Service launchParityNetwork(workingDirPath, String jsonRpcThreads, String namespace, KubernetesClient kubernetesClient, LinkedHashMap<String, String> labels, String containerImage) {
 
         createNameSpaceIfNotExist(namespace, kubernetesClient)
 
@@ -94,7 +95,7 @@ class KubernetesController {
 
         removeExistingDeployment(deploymentName, namespace, kubernetesClient, labels)
 
-        DeploymentSpec deploymentSpec = getDeploymentSpec(configs, jsonRpcThreads, labels)
+        DeploymentSpec deploymentSpec = getDeploymentSpec(configs, jsonRpcThreads, labels, containerImage)
 
         Deployment newDeployment = new DeploymentBuilder()
                 .withSpec(deploymentSpec)
@@ -116,17 +117,16 @@ class KubernetesController {
 //        return createService(ports, labels, namespace, kubernetesClient)
     }
 
-    public
-    static DeploymentSpec getDeploymentSpec(LinkedHashMap<String, String> configs, String jsonRpcThreads, LinkedHashMap<String, String> labels) {
+    static DeploymentSpec getDeploymentSpec(LinkedHashMap<String, String> configs, String jsonRpcThreads, LinkedHashMap<String, String> labels, String containerImage) {
         Volume volume = buildVolume(configs, PARITYCONFIG, configVolumeName)
         ArrayList<VolumeMount> volumeMountList = buildVolumeMountList(configs, PARITYCONFIG, configVolumeName)
         List<String> args = getArgs(jsonRpcThreads)
 
-        DeploymentSpec deploymentSpec = buildNewDeploymentSpec(args, generateContainerPortList(ports), volumeMountList, volume, defaultNodes, labels)
+        DeploymentSpec deploymentSpec = buildNewDeploymentSpec(args, generateContainerPortList(ports), volumeMountList, volume, defaultNodes, labels, containerImage)
         deploymentSpec
     }
 
-    public static List<String> getArgs(String jsonRpcThreads) {
+    static List<String> getArgs(String jsonRpcThreads) {
         List<String> args = [
                 '--config', CONFIG_REFERENCE,
                 '--chain', CHAIN_SPEC_REFERENCE,
@@ -245,10 +245,10 @@ class KubernetesController {
 
     static DeploymentSpec buildNewDeploymentSpec(List<String> args, List<ContainerPort> containerPortList,
                                                  ArrayList<VolumeMount> volumeMountList, Volume volume,
-                                                 int nodes, LinkedHashMap<String, String> labels) {
+                                                 int nodes, LinkedHashMap<String, String> labels, String containerImage) {
         Container container = new ContainerBuilder()
                 .withName(POD_NAME)
-                .withImage(CONTAINER_IMAGE)
+                .withImage(containerImage)
                 .withImagePullPolicy('Always')
                 .withArgs(args)
                 .withPorts(containerPortList)
