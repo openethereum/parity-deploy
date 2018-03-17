@@ -126,7 +126,7 @@ build_docker_client() {
     cat config/docker/client.yml >> docker-compose.yml
 
     # writing client dependencies
-    if [ "$CHAIN_NODES" > "0" ] ; then
+    if [ "$CHAIN_NODES" -gt "0" ] ; then
       echo "       depends_on:" >> docker-compose.yml
 
       for x in ` seq 1 $CHAIN_NODES ` ; do
@@ -140,7 +140,7 @@ build_docker_client() {
 build_custom_chain() {
 
 
-  if [ "$CUSTOM_CHAIN" == "" ] ; then
+  if [ -z "$CUSTOM_CHAIN" ] ; then
      echo "Must specify argument for custom chain option."
      exit 1
   fi
@@ -190,7 +190,7 @@ expose_container() {
 
 select_exposed_container() {
 
-  if [ "$EXPOSE_CLIENT" != "" ] ; then
+  if [ -n "$EXPOSE_CLIENT" ] ; then
     expose_container $EXPOSE_CLIENT
   else
     if [ "$CLIENT" == "0" ] ; then
@@ -260,11 +260,9 @@ while [ "$1" != "" ]; do
         -r | --release)         shift
                                 PARITY_RELEASE=$1
                                 ;;
-        -e | --ethstats)        shift
-                                ETHSTATS=1
+        -e | --ethstats)        ETHSTATS=1
                                 ;;
-        --enable-client)        shift
-                                CLIENT=1
+        --enable-client)        CLIENT=1
                                 ;;
         --expose)               shift
                                 EXPOSE_CLIENT="$1"
@@ -280,7 +278,7 @@ while [ "$1" != "" ]; do
     shift
 done
 
-if [ "$CHAIN_ENGINE" == "" ] && [ "$CHAIN_NETWORK" == "" ]; then
+if [ -z "$CHAIN_ENGINE" ] && [ -z "$CHAIN_NETWORK" ]; then
     echo "No chain argument, exiting..."
     exit 1
 fi
@@ -289,9 +287,9 @@ fi
 
 # Get a copy of the parity binary, overwriting if release is set
 
-if [ ! -f /usr/bin/parity ] || [ ! "$PARITY_RELEASE" == "" ] ; then
+if [ ! -f /usr/bin/parity ] || [ -n "$PARITY_RELEASE" ] ; then
 
-        if [ "$PARITY_RELEASE" == "" ] ; then
+        if [ -z "$PARITY_RELEASE" ] ; then
                 echo "NO custom parity build set, downloading beta"
                 bash <(curl https://get.parity.io -Lk)
         else
