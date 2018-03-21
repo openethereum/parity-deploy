@@ -13,7 +13,7 @@ interface = "0.0.0.0"
 
 [rpc]
 interface = "0.0.0.0"
-cors = "all"
+cors = ["all"]
 hosts = ["all"]
 apis = ["web3", "eth", "net", "parity", "traces", "rpc", "personal", "parity_accounts", "signer", "parity_set"]
 
