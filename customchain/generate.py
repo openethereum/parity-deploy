@@ -14,7 +14,7 @@ def generate_docker_compose_header():
     f.write("version: '2.0'\nservices:\n")
     f.close()
 
-def generate_docker_compose(name):
+def generate_docker_compose(hosts):
     f = open(docker_template,"r")
     spec = f.read()
     f.close()
