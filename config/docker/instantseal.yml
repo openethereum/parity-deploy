@@ -2,7 +2,7 @@ version: '2.0'
 services:
    host1:
        container_name: host1 
-       image: parity/parity:beta
+       image: parity/parity:stable
        volumes:
        - ./deployment/chain/spec.json:/parity/spec.json:ro
        - ./deployment/chain/reserved_peers:/parity/reserved_peers:ro

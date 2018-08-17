@@ -292,8 +292,8 @@ fi
 if [ ! -f /usr/bin/parity ] || [ -n "$PARITY_RELEASE" ] ; then
 
         if [ -z "$PARITY_RELEASE" ] ; then
-                echo "NO custom parity build set, downloading beta"
-                bash <(curl https://get.parity.io -Lk)
+                echo "NO custom parity build set, downloading stable"
+                bash <(curl https://get.parity.io -Lk -r stable)
         else
                 echo "Custom parity build set: $PARITY_RELEASE"
                 curl -o parity-download.sh https://get.parity.io -Lk
