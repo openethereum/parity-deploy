@@ -11,4 +11,4 @@ services:
        - ./deployment/is_authority/authority.toml:/parity/authority.toml:ro
        - ./deployment/is_authority/${NETWORK_NAME}:/parity/data/keys/${NETWORK_NAME}
        - ./data/is_authority:/parity/data
-       command: --chain dev --config /parity/authority.toml -d /parity/data ui
+       command: --chain dev --config /parity/authority.toml -d /parity/data
