@@ -2,7 +2,6 @@
        container_name: hostNODE_NAME 
        image: parity/parity:stable
        volumes:
-       - /usr/bin/parity:/parity/parity
        - ./deployment/chain/spec.json:/parity/spec.json:ro
        - ./deployment/chain/reserved_peers:/parity/reserved_peers:ro
        - ./deployment/NODE_NAME/password:/parity/password:ro

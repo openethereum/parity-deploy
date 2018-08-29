@@ -7,7 +7,6 @@
        - 8545:8545
        - 30303:30303
        volumes:
-       - /usr/bin/parity:/parity/parity
        - ./deployment/chain/spec.json:/parity/spec.json:ro
        - ./deployment/chain/reserved_peers:/parity/reserved_peers:ro
        - ./deployment/client/password:/parity/password:ro
