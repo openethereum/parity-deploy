@@ -1,7 +1,6 @@
 	"engine": {
 		"tendermint": {
 			"params": {
-				"gasLimitBoundDivisor": "0x0400",
 				"validators" : {
 					"list": [ 0x0000000000000000000000000000000000000000
 					]
