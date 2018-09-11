@@ -52,7 +52,7 @@ if [ ! -d $DEST_DIR ] ; then
    mkdir -p $DEST_DIR
 fi
 
-genpw > $DEST_DIR/password
+echo '' > $DEST_DIR/password
 ./config/utils/keygen.sh $DEST_DIR
 
 local SPEC_FILE=$(mktemp -p $DEST_DIR spec.XXXXXXXXX)
