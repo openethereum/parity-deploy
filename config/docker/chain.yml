@@ -12,6 +12,7 @@
        - ./deployment/client/password:/parity/password:ro
        - ./deployment/client/client.toml:/parity/client.toml:ro
        - ./deployment/client/${NETWORK_NAME}:/parity/data/keys/${NETWORK_NAME}
+       - ./deployment/NODE_NAME/key.priv:/parity/data/network/key
        - ./data/client:/parity/data
        command: --chain CHAIN_NAME -d /parity/data 
 

@@ -7,5 +7,6 @@
        - ./deployment/NODE_NAME/password:/parity/password:ro
        - ./deployment/NODE_NAME/authority.toml:/parity/authority.toml:ro
        - ./deployment/NODE_NAME/${NETWORK_NAME}:/parity/data/keys/${NETWORK_NAME}
+       - ./deployment/NODE_NAME/key.priv:/parity/data/network/key
        - ./data/NODE_NAME:/parity/data
        command: --chain /parity/spec.json --config /parity/authority.toml -d /parity/data 
