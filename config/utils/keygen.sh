@@ -1,5 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 TMPFILE=`mktemp`
+export PATH=$PATH:.
+
+if [ ! $(type -P ethkey) ];  then
+    ETHKEY_URL=`curl -sS "https://vanity-service.parity.io/parity-binaries?version=stable&format=markdown&os=linux&architecture=x86_64" | grep ethkey | awk {'print $5'}  | cut -d"(" -f2 | cut -d")" -f1`
+    wget -q $ETHKEY_URL
+    chmod +x ethkey
+fi
+
 
 # Generate the private and public keys
 ethkey generate random > $TMPFILE
