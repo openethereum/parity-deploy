@@ -10,6 +10,7 @@ Requires:
 2. python pip
 3. docker
 4. docker-compose
+5. ethkey (or this can be downloaded dynamically by the key generation script)
 
 # CLI Usage Options
 
