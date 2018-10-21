@@ -1,11 +1,11 @@
 [parity]
-chain = "/parity/chain.json"
+chain = "/home/parity/chain.json"
 
 [account]
-password = ["/parity/password"]
+password = ["/home/parity/password"]
 
 [network]
-reserved_peers = "/parity/reserved_peers"
+reserved_peers = "/home/parity/reserved_peers"
 
 [rpc]
 interface = "0.0.0.0"

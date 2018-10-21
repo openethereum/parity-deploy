@@ -44,7 +44,7 @@ config = '''
 # Default toml file for hosts unless overridden.
 default_config = '''
 [parity]
-chain = "/parity/chain.json"
+chain = "/home/parity/chain.json"
 '''
 
 
@@ -56,11 +56,11 @@ chain = "/parity/chain.json"
 host5 = ''' 
 
 [parity]
-chain = "/parity/chain.json"
+chain = "/home/parity/chain.json"
 
 [account]
 unlock = ["0x830ac6153fcd2123459ebec27e1376eb90f9d616"]
-password = ["/parity/password"]
+password = ["/home/parity/password"]
 
 
 [rpc]

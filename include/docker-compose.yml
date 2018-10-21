@@ -1,0 +1,5 @@
+volumes:
+  myapp:
+    #driver: local
+    driver_opts:
+      o: uid=1000,gid=1000

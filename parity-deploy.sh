@@ -100,10 +100,13 @@ build_docker_config_poa() {
  echo "services:" >> docker-compose.yml
 
  for x in ` seq 1 $CHAIN_NODES ` ; do
-    cat config/docker/authority.yml | sed -e "s/NODE_NAME/$x/g" | sed -e "s@-d /parity/data@-d /parity/data $PARITY_OPTIONS@g" >> docker-compose.yml
+    cat config/docker/authority.yml | sed -e "s/NODE_NAME/$x/g" | sed -e "s@-d /home/parity/data@-d /home/parity/data $PARITY_OPTIONS@g" >> docker-compose.yml
+    mkdir -p data/$x
  done
 
  cat $DOCKER_INCLUDE >> docker-compose.yml
+
+ chown -R $USER data/
 
 }
 
@@ -117,7 +120,7 @@ build_docker_config_ethstats() {
 
 build_docker_config_instantseal() {
 
-  cat config/docker/instantseal.yml | sed -e "s@-d /parity/data@-d /parity/data $PARITY_OPTIONS@g" > docker-compose.yml
+  cat config/docker/instantseal.yml | sed -e "s@-d /home/parity/data@-d /home/parity/data $PARITY_OPTIONS@g" > docker-compose.yml
 
 }
 
@@ -315,7 +318,7 @@ fi
 
 if [ ! -z "$CHAIN_NETWORK" ]; then
   if [ ! -z "$PARITY_OPTIONS" ]; then
-      cat config/docker/chain.yml | sed -e "s/CHAIN_NAME/$CHAIN_NETWORK/g" | sed -e "s@-d /parity/data@-d /parity/data $PARITY_OPTIONS@g"  > docker-compose.yml
+      cat config/docker/chain.yml | sed -e "s/CHAIN_NAME/$CHAIN_NETWORK/g" | sed -e "s@-d /home/parity/data@-d /home/parity/data $PARITY_OPTIONS@g"  > docker-compose.yml
 
   else
       cat config/docker/chain.yml | sed -e "s/CHAIN_NAME/$CHAIN_NETWORK/g"  > docker-compose.yml
