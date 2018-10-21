@@ -1,6 +1,7 @@
    client:
        container_name: client
        image: parity/parity:stable
+       user: parity
        ports:
        - 8080:8080
        - 8180:8180
@@ -8,11 +9,11 @@
        - 8546:8546
        - 30303:30303
        volumes:
-       - ./deployment/chain/spec.json:/parity/spec.json:ro
-       - ./deployment/chain/reserved_peers:/parity/reserved_peers:ro
-       - ./deployment/client/password:/parity/password:ro
-       - ./deployment/client/client.toml:/parity/client.toml:ro
-       - ./deployment/client/${NETWORK_NAME}:/parity/data/keys/${NETWORK_NAME}
-       - ./deployment/NODE_NAME/key.priv:/parity/data/network/key
-       - ./data/client:/parity/data
-       command: --chain /parity/spec.json --config /parity/client.toml -d /parity/data
+       - ./deployment/chain/spec.json:/home/parity/spec.json:ro
+       - ./deployment/chain/reserved_peers:/home/parity/reserved_peers:ro
+       - ./deployment/client/password:/home/parity/password:ro
+       - ./deployment/client/client.toml:/home/parity/client.toml:ro
+       - ./deployment/client/${NETWORK_NAME}:/home/parity/data/keys/${NETWORK_NAME}
+       - ./deployment/NODE_NAME/key.priv:/home/parity/data/network/key
+       - ./data/client:/home/parity/data
+       command: --chain /home/parity/spec.json --config /home/parity/client.toml -d /home/parity/data

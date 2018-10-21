@@ -1,11 +1,11 @@
 [parity]
-chain = "/parity/spec.json"
+chain = "/home/parity/spec.json"
 
 [account]
-password = ["/parity/password"]
+password = ["/home/parity/password"]
 
 [network]
-reserved_peers = "/parity/reserved_peers"
+reserved_peers = "/home/parity/reserved_peers"
 
 [websockets]
 disable = false

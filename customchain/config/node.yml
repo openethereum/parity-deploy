@@ -2,10 +2,10 @@
        container_name: NODE_NAME 
        image: parity/parity:beta 
        volumes:
-       - ./deployment/NODE_NAME.toml:/parity/config.toml:ro
-       - ./deployment/spec.json:/parity/spec.json:ro
-       - ./deployment/reserved_peers:/parity/reserved_peers
-       - ./customchain/config/password:/parity/password:ro
-       - ./customchain/config/keys:/parity/data/keys/parity
-       - ./data/NODE_NAME:/parity/data
-       command: --chain /parity/spec.json --reserved-peers /parity/reserved_peers --config /parity/config.toml -d /parity/data 
+       - ./deployment/NODE_NAME.toml:/home/parity/config.toml:ro
+       - ./deployment/spec.json:/home/parity/spec.json:ro
+       - ./deployment/reserved_peers:/home/parity/reserved_peers
+       - ./customchain/config/password:/home/parity/password:ro
+       - ./customchain/config/keys:/home/parity/data/keys/parity
+       - ./data/NODE_NAME:/home/parity/data
+       command: --chain /home/parity/spec.json --reserved-peers /home/parity/reserved_peers --config /home/parity/config.toml -d /home/parity/data
