@@ -99,6 +99,8 @@ build_docker_config_poa() {
 		mkdir -p data/$x
 	done
 
+	build_docker_config_ethstats
+
 	cat $DOCKER_INCLUDE >>docker-compose.yml
 
 	chown -R $USER data/
@@ -115,7 +117,7 @@ build_docker_config_ethstats() {
 build_docker_config_instantseal() {
 
 	cat config/docker/instantseal.yml | sed -e "s@-d /home/parity/data@-d /home/parity/data $PARITY_OPTIONS@g" >docker-compose.yml
-
+	build_docker_config_ethstats
 }
 
 build_docker_client() {
@@ -346,5 +348,4 @@ else
 	echo "Could not find spec file: $CHAIN_ENGINE"
 fi
 
-build_docker_config_ethstats
 select_exposed_container
