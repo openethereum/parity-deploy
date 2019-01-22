@@ -1,7 +1,7 @@
 version: '2.0'
 services:
    host1:
-       container_name: host1 
+       container_name: host1
        image: parity/parity:stable
        user: parity
        volumes:
@@ -10,6 +10,6 @@ services:
        - ./deployment/chain/authcodes:/home/parity/data/authcodes
        - ./deployment/is_authority/password:/home/parity/password:ro
        - ./deployment/is_authority/authority.toml:/home/parity/authority.toml:ro
-       - ./deployment/is_authority/${NETWORK_NAME}:/home/parity/data/keys/${NETWORK_NAME}
+       - ./deployment/is_authority/${NETWORK_NAME}:/home/parity/data/keys/DevelopmentChain
        - ./data/is_authority:/home/parity/data
        command: --chain dev --config /home/parity/authority.toml -d /home/parity/data
