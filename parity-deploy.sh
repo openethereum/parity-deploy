@@ -78,7 +78,7 @@ create_reserved_peers_instantseal() {
 }
 
 build_spec() {
-
+        
 	display_header
 	display_name
 	display_engine
@@ -103,8 +103,6 @@ build_docker_config_poa() {
 
 	cat $DOCKER_INCLUDE >>docker-compose.yml
 
-	sudo chown -R 1000:1000 data deployment
-
 }
 
 build_docker_config_ethstats() {
@@ -123,8 +121,6 @@ build_docker_config_instantseal() {
         cat $DOCKER_INCLUDE >>docker-compose.yml
 
         mkdir -p data/is_authority
-
-        sudo chown -R 1000:1000 data deployment
 
 }
 
@@ -350,6 +346,7 @@ elif [ "$CHAIN_ENGINE" == "aura" ] || [ "$CHAIN_ENGINE" == "validatorset" ] || [
 		mkdir -p deployment/chain
 		cp $CHAIN_ENGINE deployment/chain/spec.json
 	fi
+	sudo chown -R 1000:1000 data deployment
 
 else
 
