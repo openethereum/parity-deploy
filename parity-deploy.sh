@@ -103,7 +103,7 @@ build_docker_config_poa() {
 
 	cat $DOCKER_INCLUDE >>docker-compose.yml
 
-	chown -R $USER data/
+	sudo chown -R 1000:1000 data deployment
 
 }
 
@@ -124,7 +124,8 @@ build_docker_config_instantseal() {
 
         mkdir -p data/is_authority
 
-        chown -R $USER data/
+        sudo chown -R 1000:1000 data deployment
+
 }
 
 build_docker_client() {
