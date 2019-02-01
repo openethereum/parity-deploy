@@ -1,7 +1,9 @@
    hostNODE_NAME:
        container_name: hostNODE_NAME 
        image: parity/parity:stable
-       user: parity
+       user: root
+       entrypoint: '/home/parity/bin/parity'
+       working_dir: /home/parity'
        volumes:
        - ./deployment/chain/spec.json:/home/parity/spec.json:ro
        - ./deployment/chain/reserved_peers:/home/parity/reserved_peers:ro
