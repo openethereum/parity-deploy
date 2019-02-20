@@ -57,7 +57,6 @@ create_node_params() {
 
 	local SPEC_FILE=$(mktemp -p $DEST_DIR spec.XXXXXXXXX)
 	sed "s/CHAIN_NAME/$CHAIN_NAME/g" config/spec/example.spec >$SPEC_FILE
-	parity --chain $SPEC_FILE --keys-path $DEST_DIR/ account new --password $DEST_DIR/password >$DEST_DIR/address.txt
 	rm $SPEC_FILE
 
 	echo "NETWORK_NAME=$CHAIN_NAME" >.env
@@ -292,20 +291,6 @@ done
 if [ -z "$CHAIN_ENGINE" ] && [ -z "$CHAIN_NETWORK" ]; then
 	echo "No chain argument, exiting..."
 	exit 1
-fi
-
-# Get a copy of the parity binary, overwriting if release is set
-
-if [ ! -f /usr/bin/parity ] || [ -n "$PARITY_RELEASE" ]; then
-
-	if [ -z "$PARITY_RELEASE" ]; then
-		echo "NO custom parity build set, downloading stable"
-		bash <(curl https://get.parity.io -Lk -r stable)
-	else
-		echo "Custom parity build set: $PARITY_RELEASE"
-		curl -o parity-download.sh https://get.parity.io -Lk
-		bash parity-download.sh -r $PARITY_RELEASE
-	fi
 fi
 
 mkdir -p deployment/chain

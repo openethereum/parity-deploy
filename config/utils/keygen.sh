@@ -9,13 +9,12 @@ if [ ! $(type -P $PWD/ethkey) ];  then
     chmod +x ethkey
 fi
 
-
 # Generate the private and public keys
 ./ethkey generate random > $TMPFILE
- 
+
 cat $TMPFILE | grep public | awk {'print $2'} > $1/key.pub
 cat $TMPFILE | grep secret | awk {'print $2'} > $1/key.priv
+cat $TMPFILE | grep address | awk {'print $2'} > $1/address.txt
 
 rm -rf $TMPFILE
-
 
