@@ -340,4 +340,11 @@ else
 	echo "Could not find spec file: $CHAIN_ENGINE"
 fi
 
+if [ ! -z $PARITY_RELEASE ]; then
+    echo "Custom release ${PARITY_RELEASE} selected. WARNING: This may not be compatible with all parity docker images"
+	DOCKER_TMP=$(mktemp)
+	cat docker-compose.yml | sed -e "s@image: parity/parity:stable@image: parity/parity:${PARITY_RELEASE}@g" > $DOCKER_TMP
+	mv $DOCKER_TMP docker-compose.yml
+fi
+
 select_exposed_container
