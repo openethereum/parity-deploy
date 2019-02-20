@@ -35,6 +35,10 @@ Optional:
 
 ```--expose``` This option will expose ports 8080, 8180, 8545 and 30303 on the container name given as an argument.
 
+```--release``` This option will let you select the release of the docker image.
+
+```--entrypoint``` This option will override the default entrypoint in the docker image.
+
 
 # Using the tool
 

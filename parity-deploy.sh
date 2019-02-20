@@ -16,6 +16,7 @@ OPTIONAL:
         --nodes number_of_nodes (if using aura / tendermint) Default: 2
         --ethstats - Enable ethstats monitoring of authority nodes. Default: Off
         --expose - Expose a specific container on ports 8180 / 8545 / 30303. Default: Config specific
+	--entrypoint - Use custom entrypoint for docker container e.g. /home/parity/bin/parity
 
 NOTE:
     input.json - Custom spec files can be inserted by specifiying the path to the json file.
@@ -279,6 +280,10 @@ while [ "$1" != "" ]; do
 		shift
 		CHAIN_NETWORK=$1
 		;;
+	--entrypoint)
+		shift
+		ENTRYPOINT=$1
+		;;
 	-h | --help)
 		help
 		exit
@@ -345,6 +350,12 @@ if [ ! -z $PARITY_RELEASE ]; then
 	DOCKER_TMP=$(mktemp)
 	cat docker-compose.yml | sed -e "s@image: parity/parity:stable@image: parity/parity:${PARITY_RELEASE}@g" > $DOCKER_TMP
 	mv $DOCKER_TMP docker-compose.yml
+fi
+
+if [ ! -z $ENTRYPOINT ]; then
+    ENTRYPOINT_TMP=$(mktemp)
+	cat docker-compose.yml | sed -e "s@user: root@user: root\n       entrypoint: ${ENTRYPOINT}@g" > $ENTRYPOINT_TMP
+	mv $ENTRYPOINT_TMP docker-compose.yml
 fi
 
 select_exposed_container
