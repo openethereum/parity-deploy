@@ -4,7 +4,6 @@ services:
        container_name: host1
        image: parity/parity:stable
        user: root
-       entrypoint: '/home/parity/bin/parity'
        working_dir: /home/parity'
 
        volumes:
