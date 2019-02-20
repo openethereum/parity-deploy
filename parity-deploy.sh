@@ -51,13 +51,13 @@ create_node_params() {
 	fi
 
 	if [ ! -f $DEST_DIR/password ]; then
-		echo '' >$DEST_DIR/password
+		openssl rand -base64 12 >$DEST_DIR/password
 	fi
 	./config/utils/keygen.sh $DEST_DIR
 
-	local SPEC_FILE=$(mktemp -p $DEST_DIR spec.XXXXXXXXX)
-	sed "s/CHAIN_NAME/$CHAIN_NAME/g" config/spec/example.spec >$SPEC_FILE
-	rm $SPEC_FILE
+	PASSWORD=$(cat $DEST_DIR/password)
+	PRIV_KEY=$(cat $DEST_DIR/key.priv)
+	./ethstore insert ${PRIV_KEY} $DEST_DIR/password --dir $DEST_DIR/parity >$DEST_DIR/address.txt
 
 	echo "NETWORK_NAME=$CHAIN_NAME" >.env
 
